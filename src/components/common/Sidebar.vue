@@ -70,6 +70,11 @@
                         title: '员工管理'
                     },
                     {
+                        icon: 'el-icon-lx-cascades',
+                        index: 'order',
+                        title: '订单管理'
+                    },
+                    {
                         icon: 'el-icon-lx-copy',
                         index: 'tabs',
                         title: 'tab选项卡'

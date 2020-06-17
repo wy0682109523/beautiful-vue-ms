@@ -30,6 +30,11 @@ export default new Router({
                     meta: { title: '员工管理' }
                 },
                 {
+                    path: '/order',
+                    component: () => import(/* webpackChunkName: "order" */ '../components/page/Order.vue'),
+                    meta: { title: '订单管理' }
+                },
+                {
                     path: '/tabs',
                     component: () => import(/* webpackChunkName: "tabs" */ '../components/page/Tabs.vue'),
                     meta: { title: 'tab选项卡' }
