@@ -76,7 +76,7 @@
 </template>
 
 <script>
-    import { deleteInventory, deleteInventoryList, getInventoryList } from '../../api/index';
+    import { deleteInventory, deleteInventoryList, getInventoryList, updateInventory } from '../../api/index';
 
     export default {
         name: 'inventory',
