@@ -30,6 +30,11 @@ export default new Router({
                     meta: { title: '员工管理' }
                 },
                 {
+                    path: '/inventory',
+                    component: () => import(/* webpackChunkName: "inventory" */ '../components/page/Inventory.vue'),
+                    meta: { title: '库存管理' }
+                },
+                {
                     path: '/order',
                     component: () => import(/* webpackChunkName: "order" */ '../components/page/Order.vue'),
                     meta: { title: '订单管理' }

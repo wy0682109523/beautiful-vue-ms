@@ -71,6 +71,11 @@
                     },
                     {
                         icon: 'el-icon-lx-cascades',
+                        index: 'inventory',
+                        title: '库存管理'
+                    },
+                    {
+                        icon: 'el-icon-lx-cascades',
                         index: 'order',
                         title: '订单管理'
                     },
