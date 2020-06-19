@@ -76,6 +76,11 @@
                     },
                     {
                         icon: 'el-icon-lx-cascades',
+                        index: 'goods',
+                        title: '商品管理'
+                    },
+                    {
+                        icon: 'el-icon-lx-cascades',
                         index: 'order',
                         title: '订单管理'
                     },

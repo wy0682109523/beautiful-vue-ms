@@ -4,7 +4,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 订单管理
+                    <i class="el-icon-lx-cascades"></i> 库存管理
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -14,16 +14,13 @@
             <div class="handle-box">
                 <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="popupOrderCreateDialog">
-                    创建订单
-                </el-button>
-                <el-input v-model="query.orderId" placeholder="订单ID" class="handle-input mr10"></el-input>
-                <el-input v-model="query.paymentMethod" placeholder="支付方式" class="handle-input mr10"></el-input>
+                <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
+                <el-input v-model="query.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
             </div>
 
             <el-table
-                    :data="orderList"
+                    :data="goodsList"
                     border
                     stripe
                     class="table"
@@ -33,22 +30,20 @@
                     @selection-change="handleSelectionChange"
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="orderId" label="订单ID" align="center"></el-table-column>
-                <el-table-column label="商品信息" align="center">
-                    <template slot-scope="scope">
-                        <div v-for="(item,index) in scope.row.orderGoodsList" :key="index">名称：{{item.goodsName}}
-                            数量：{{item.goodsQuantity}}
-                        </div>
-                    </template>
+                <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
+                <el-table-column prop="goodsName" label="商品数量" align="center"></el-table-column>
+                <el-table-column prop="unitPrice" label="商品单价" align="center">
+                    <template slot-scope="scope">￥ {{scope.row.unitPrice}}</template>
                 </el-table-column>
-                <el-table-column label="订单金额" align="center">
-                    <template slot-scope="scope">￥ {{scope.row.orderAmount}}</template>
+                <el-table-column label="采购价" align="center">
+                    <template slot-scope="scope">￥ {{scope.row.purchasePrice}}</template>
                 </el-table-column>
-
-                <el-table-column prop="paymentMethod" label="支付方式" align="center"></el-table-column>
-                <el-table-column prop="orderTime" label="下单时间" align="center"></el-table-column>
+                <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
+                <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center" fixed="right">
                     <template slot-scope="scope">
+                        <el-button type="success" @click="popupUpdateGoodsDialog(scope.$index, scope.row)">修改
+                        </el-button>
                         <el-button type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -65,18 +60,23 @@
                 ></el-pagination>
             </div>
 
-            <el-dialog title="创建订单" :visible.sync="createOrderDialogVisible" width="30%">
-                <el-form ref="orderCreateParam" :model="orderCreateParam" label-width="90px" label-position="left">
-                    <el-form-item label="订单金额" prop="orderAmount">
-                        <el-input v-model="orderCreateParam.orderAmount" clearable></el-input>
+            <el-dialog title="修改库存" :visible.sync="updateGoodsDialogVisible" width="30%">
+                <el-form ref="updateGoodsParam" :model="updateGoodsParam" label-width="90px"
+                         label-position="left">
+                    <el-form-item label="商品Id" prop="goodsId">
+                        <el-input v-model="updateGoodsParam.goodsId" :disabled="true"></el-input>
                     </el-form-item>
-                    <el-form-item label="订单金额" prop="orderAmount">
-                        <el-input v-model="orderCreateParam.orderAmount" clearable></el-input>
+                    <el-form-item label="商品名称" prop="goodsName">
+                        <el-input v-model="updateGoodsParam.goodsName" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品单价" prop="unitPrice">
+                        <el-input v-model="updateGoodsParam.unitPrice" clearable></el-input>
                     </el-form-item>
                 </el-form>
+
                 <span slot="footer" class="dialog-footer">
-                <el-button @click="cancelOrderCreateDialog('orderCreateParam')">取 消</el-button>
-                <el-button type="primary" @click="saveOrderCreateData('orderCreateParam')">确 定</el-button>
+                <el-button @click="cancelGoodsUpdateDialog('updateGoodsParam')">取 消</el-button>
+                <el-button type="primary" @click="saveGoodsUpdateData('updateGoodsParam')">确 定</el-button>
             </span>
             </el-dialog>
         </div>
@@ -84,46 +84,46 @@
 </template>
 
 <script>
-    import { createOrder, deleteOrder, deleteOrderList, getOrderList } from '../../api/index';
+    import { deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/index';
 
     export default {
-        name: 'order',
+        name: 'goods',
         data() {
             return {
                 query: {
-                    orderId: null,
-                    paymentMethod: null,
+                    goodsId: null,
+                    goodsName: null,
                     offset: 1,
                     limit: 10
                 },
                 deleteParam: {
-                    orderId: null
+                    goodsId: null
                 },
                 deleteListParam: {
-                    orderIdList: []
+                    goodsIdList: []
                 },
-                orderList: [],
-                orderCreateParam: {},
+                updateGoodsParam: {},
+                goodsList: [],
                 multipleSelection: [],
                 totalSize: 0,
-                createOrderDialogVisible: false
+                updateGoodsDialogVisible: false
             };
         },
         created() {
-            this.getOrderData();
+            this.getGoodsData();
         },
         methods: {
-            // 获取员工列表
-            getOrderData() {
-                getOrderList(this.query).then(response => {
-                    this.orderList = response.result.orderList;
+            // 获取库存列表
+            getGoodsData() {
+                getGoodsList(this.query).then(response => {
+                    this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
                 });
             },
             // 触发搜索按钮
             handleSearch() {
                 this.$set(this.query, 'offset', 1);
-                this.getOrderData();
+                this.getGoodsData();
             },
             // 删除操作
             handleDelete(index, row) {
@@ -132,11 +132,11 @@
                     type: 'warning'
                 })
                     .then(() => {
-                        this.deleteParam.orderId = row.orderId;
+                        this.deleteParam.goodsId = row.goodsId;
 
-                        deleteOrder(this.deleteParam);
+                        deleteGoods(this.deleteParam);
                         //表单伪刷新或者重新拉取数据
-                        this.orderList.splice(index, 1);
+                        this.goodsList.splice(index, 1);
 
                         this.$set(this, 'totalSize', --this.totalSize);
 
@@ -163,20 +163,20 @@
                     .then(() => {
 
                         //清空删除参数
-                        this.deleteListParam.orderIdList = [];
+                        this.deleteListParam.goodsIdList = [];
 
                         this.multipleSelection.map((item, index) => {
-                            this.deleteListParam.orderIdList.push(item.orderId);
+                            this.deleteListParam.goodsIdList.push(item.goodsId);
                         });
 
-                        deleteOrderList(this.deleteListParam).then(() => {
+                        deleteGoodsList(this.deleteListParam).then(() => {
 
                             //删除之后再刷新页面
                             this.$message.success(`删除成功`);
 
-                            this.$set(this.query, 'offset', this.getJumpPage(this.deleteListParam.orderIdList.length));
+                            this.$set(this.query, 'offset', this.getJumpPage(this.deleteListParam.goodsIdList.length));
 
-                            this.getOrderData();
+                            this.getGoodsData();
                         });
 
                         //清空选择项
@@ -193,36 +193,29 @@
             // 分页导航
             handlePageChange(val) {
                 this.$set(this.query, 'offset', val);
-                this.getOrderData();
+                this.getGoodsData();
             },
             //跳转第几页
             getJumpPage(deleteCount) {
                 return Math.ceil((this.totalSize - deleteCount) / this.query.limit);
             },
-            popupOrderCreateDialog() {
-                this.createOrderDialogVisible = true;
+            popupUpdateGoodsDialog(index, row) {
+                this.updateGoodsParam = row;
+                this.updateGoodsDialogVisible = true;
             },
-            cancelOrderCreateDialog(formName) {
-                this.createOrderDialogVisible = false;
-                this.$refs[formName].clearValidate();
-            },
-            saveOrderCreateData(formName) {
-                this.$refs[formName].validate((valid) => {
-                    if (valid) {
-                        this.createOrderDialogVisible = false;
-                        createOrder(this.orderCreateParam).then((response) => {
-                            this.$message({
-                                showClose: true,
-                                message: '订单创建成功',
-                                type: 'success'
-                            });
-                        }).catch((response) => {
-                            this.$message.error(`订单创建失败，失败原因：` + response.message);
-                        });
-                    } else {
-                        return false;
-                    }
+            saveGoodsUpdateData(formName) {
+                updateGoods(this.updateGoodsParam).then(() => {
+                    this.$message.success('修改成功');
+                }).catch(() => {
+                    this.$message.error('修改失败');
                 });
+
+                this.updateGoodsDialogVisible = false;
+            },
+            //取消库存表单
+            cancelGoodsUpdateDialog(formName) {
+                this.updateGoodsDialogVisible = false;
+                this.$refs[formName].clearValidate();
             }
         }
     };
@@ -263,6 +256,7 @@
     }
 </style>
 
+<!-- 选中行颜色 -->
 <style>
     .el-table__body tr.current-row > td {
         color: #fff;
