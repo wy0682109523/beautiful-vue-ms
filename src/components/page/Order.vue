@@ -12,7 +12,7 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
+                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
                 <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="popupOrderCreateDialog">
                     创建订单

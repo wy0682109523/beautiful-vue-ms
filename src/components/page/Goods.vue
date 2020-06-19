@@ -12,7 +12,9 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
+                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
+                </el-button>
+                <el-button type="success" icon="el-icon-delete" class="handle-del mr10" @click="popupAddGoodsDialog('addParam')">添加商品
                 </el-button>
                 <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
                 <el-input v-model="query.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
@@ -60,7 +62,7 @@
                 ></el-pagination>
             </div>
 
-            <el-dialog title="修改库存" :visible.sync="updateGoodsDialogVisible" width="30%">
+            <el-dialog title="修改商品" :visible.sync="updateGoodsDialogVisible" width="30%">
                 <el-form ref="updateGoodsParam" :model="updateGoodsParam" label-width="90px"
                          label-position="left">
                     <el-form-item label="商品Id" prop="goodsId">
@@ -79,12 +81,41 @@
                 <el-button type="primary" @click="saveGoodsUpdateData('updateGoodsParam')">确 定</el-button>
             </span>
             </el-dialog>
+
+            <el-dialog title="添加商品" :visible.sync="addGoodsDialogVisible" width="30%">
+                <el-form ref="addParam" :model="addParam" label-width="90px"
+                         label-position="left">
+                    <el-form-item label="商品名称" prop="goodsName">
+                        <el-input v-model="addParam.goodsName" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="库存数量" prop="goodsQuantity">
+                        <el-input v-model="addParam.goodsQuantity" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品单价" prop="unitPrice">
+                        <el-input v-model="addParam.unitPrice" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="采购价" prop="purchasePrice">
+                        <el-input v-model="addParam.purchasePrice" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="生产日期" prop="productionDate">
+                        <el-input v-model="addParam.productionDate" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="保质期（天）" prop="expiryDate">
+                        <el-input v-model="addParam.expiryDate" clearable></el-input>
+                    </el-form-item>
+                </el-form>
+
+                <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelGoodsAddDialog('addParam')">取 消</el-button>
+                <el-button type="primary" @click="saveGoodsAddData('addParam')">确 定</el-button>
+            </span>
+            </el-dialog>
         </div>
     </div>
 </template>
 
 <script>
-    import { deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/index';
+    import { deleteGoods, deleteGoodsList, getGoodsList, updateGoods,addGoods } from '../../api/index';
 
     export default {
         name: 'goods',
@@ -96,6 +127,7 @@
                     offset: 1,
                     limit: 10
                 },
+                addParam: {},
                 deleteParam: {
                     goodsId: null
                 },
@@ -106,7 +138,8 @@
                 goodsList: [],
                 multipleSelection: [],
                 totalSize: 0,
-                updateGoodsDialogVisible: false
+                updateGoodsDialogVisible: false,
+                addGoodsDialogVisible: false
             };
         },
         created() {
@@ -215,6 +248,28 @@
             //取消库存表单
             cancelGoodsUpdateDialog(formName) {
                 this.updateGoodsDialogVisible = false;
+                this.$refs[formName].clearValidate();
+            },
+            popupAddGoodsDialog(formName) {
+                this.addParam={};
+                this.addGoodsDialogVisible = true;
+            },
+            saveGoodsAddData(formName) {
+                addGoods(this.addParam).then(() => {
+                    this.$message.success('添加成功');
+                }).catch(() => {
+                    this.$message.error('添加失败');
+                });
+
+                this.addGoodsDialogVisible = false;
+
+                this.$set(this.query, 'offset', 1);
+
+                this.getGoodsData();
+            },
+            //取消库存表单
+            cancelGoodsAddDialog(formName) {
+                this.addGoodsDialogVisible = false;
                 this.$refs[formName].clearValidate();
             }
         }

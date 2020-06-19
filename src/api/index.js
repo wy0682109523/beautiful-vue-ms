@@ -192,3 +192,13 @@ export const deleteGoodsList = query => {
         data: query
     });
 };
+
+//添加商品
+export const addGoods = query => {
+    console.log(query);
+    return request({
+        url: 'v1/goods/addGoods',
+        method: 'post',
+        data: query
+    });
+};
