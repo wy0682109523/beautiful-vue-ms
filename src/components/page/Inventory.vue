@@ -14,8 +14,6 @@
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">录入库存
-                </el-button>
                 <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
                 <el-input v-model="query.goodsQuantity" placeholder="库存数量" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
@@ -33,7 +31,7 @@
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
-
+                <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                 <el-table-column prop="goodsQuantity" label="库存数量" align="center"></el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
@@ -247,12 +245,5 @@
         margin: auto;
         width: 40px;
         height: 40px;
-    }
-</style>
-
-<style>
-    .el-table__body tr.current-row > td {
-        color: #fff;
-        background: #2d8cf0 !important;
     }
 </style>

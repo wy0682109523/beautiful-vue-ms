@@ -158,7 +158,6 @@ export const deleteInventoryList = query => {
 
 //查询商品列表
 export const getGoodsList = query => {
-    console.log(query);
     return request({
         url: 'v1/goods/getGoodsList',
         method: 'post',
@@ -195,9 +194,18 @@ export const deleteGoodsList = query => {
 
 //添加商品
 export const addGoods = query => {
-    console.log(query);
     return request({
         url: 'v1/goods/addGoods',
+        method: 'post',
+        data: query
+    });
+};
+
+//添加批次
+export const addGoodsLot = query => {
+    console.log(query);
+    return request({
+        url: 'v1/goods/addGoodsLot',
         method: 'post',
         data: query
     });

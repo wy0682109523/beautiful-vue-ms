@@ -18,8 +18,16 @@
                     创建订单
                 </el-button>
                 <el-input v-model="query.orderId" placeholder="订单ID" class="handle-input mr10"></el-input>
-                <el-input v-model="query.paymentMethod" placeholder="支付方式" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                <el-select v-model="query.paymentMethod" placeholder="请选择支付方式" clearable>
+                    <el-option
+                            v-for="item in selectOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
+                </el-button>
             </div>
 
             <el-table
@@ -106,7 +114,18 @@
                 orderCreateParam: {},
                 multipleSelection: [],
                 totalSize: 0,
-                createOrderDialogVisible: false
+                createOrderDialogVisible: false,
+                selectOptions: [
+                    {
+                        value: '1',
+                        label: '现金'
+                    }, {
+                        value: '2',
+                        label: '微信'
+                    }, {
+                        value: '3',
+                        label: '支付宝'
+                    }]
             };
         },
         created() {
@@ -260,12 +279,5 @@
         margin: auto;
         width: 40px;
         height: 40px;
-    }
-</style>
-
-<style>
-    .el-table__body tr.current-row > td {
-        color: #fff;
-        background: #2d8cf0 !important;
     }
 </style>

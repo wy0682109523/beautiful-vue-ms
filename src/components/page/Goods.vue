@@ -14,11 +14,21 @@
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-button type="success" icon="el-icon-delete" class="handle-del mr10" @click="popupAddGoodsDialog('addParam')">添加商品
+                <el-button type="success" icon="el-icon-plus" class="handle-del mr10"
+                           @click="popupAddGoodsDialog('addParam')">添加商品
                 </el-button>
                 <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
                 <el-input v-model="query.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                <el-select v-model="query.expireStatus" placeholder="请选择过期状态" clearable>
+                    <el-option
+                            v-for="item in selectOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
+                </el-button>
             </div>
 
             <el-table
@@ -33,18 +43,28 @@
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
-                <el-table-column prop="goodsName" label="商品数量" align="center"></el-table-column>
+                <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                 <el-table-column prop="unitPrice" label="商品单价" align="center">
                     <template slot-scope="scope">￥ {{scope.row.unitPrice}}</template>
                 </el-table-column>
                 <el-table-column label="采购价" align="center">
                     <template slot-scope="scope">￥ {{scope.row.purchasePrice}}</template>
                 </el-table-column>
+                <el-table-column prop="productionDate" label="生产日期" align="center"></el-table-column>
+                <el-table-column prop="expiryDate" label="过期日期" align="center"></el-table-column>
+                <el-table-column prop="expireTime" label="保质期（天）" align="center"></el-table-column>
+                <el-table-column prop="remainTime" label="剩余时间（天）" align="center"></el-table-column>
+                <el-table-column prop="expireWarnFlag" label="过期提醒" align="center"
+                                 :formatter="formatExpireWarnFlag"></el-table-column>
+                <el-table-column prop="expireStatus" label="过期状态" align="center"
+                                 :formatter="formatExpireStatus"></el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
-                <el-table-column label="操作" width="180" align="center" fixed="right">
+                <el-table-column label="操作" width="240" align="center" fixed="right">
                     <template slot-scope="scope">
-                        <el-button type="success" @click="popupUpdateGoodsDialog(scope.$index, scope.row)">修改
+                        <el-button type="success" @click="popupAddLotDialog(scope.$index, scope.row)">添加批次
+                        </el-button>
+                        <el-button type="primary" @click="popupUpdateGoodsDialog(scope.$index, scope.row)">修改
                         </el-button>
                         <el-button type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
@@ -74,6 +94,21 @@
                     <el-form-item label="商品单价" prop="unitPrice">
                         <el-input v-model="updateGoodsParam.unitPrice" clearable></el-input>
                     </el-form-item>
+                    <el-form-item label="采购价" prop="purchasePrice">
+                        <el-input v-model="updateGoodsParam.purchasePrice" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                        <el-switch
+                                style="display: block"
+                                v-model="updateGoodsParam.expireWarnFlag"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-text="开启"
+                                inactive-text="关闭"
+                                active-value="1"
+                                inactive-value="0">
+                        </el-switch>
+                    </el-form-item>
                 </el-form>
 
                 <span slot="footer" class="dialog-footer">
@@ -82,8 +117,8 @@
             </span>
             </el-dialog>
 
-            <el-dialog title="添加商品" :visible.sync="addGoodsDialogVisible" width="30%">
-                <el-form ref="addParam" :model="addParam" label-width="90px"
+            <el-dialog title="添加商品" :visible.sync="addGoodsDialogVisible" width="25%">
+                <el-form ref="addParam" :model="addParam" label-width="110px"
                          label-position="left">
                     <el-form-item label="商品名称" prop="goodsName">
                         <el-input v-model="addParam.goodsName" clearable></el-input>
@@ -98,10 +133,28 @@
                         <el-input v-model="addParam.purchasePrice" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="生产日期" prop="productionDate">
-                        <el-input v-model="addParam.productionDate" clearable></el-input>
+                        <el-date-picker
+                                v-model="addParam.productionDate"
+                                align="right"
+                                type="date"
+                                placeholder="选择生产日期"
+                                :picker-options="pickerOptions">
+                        </el-date-picker>
                     </el-form-item>
-                    <el-form-item label="保质期（天）" prop="expiryDate">
-                        <el-input v-model="addParam.expiryDate" clearable></el-input>
+                    <el-form-item label="保质期（天）" prop="expiryTime">
+                        <el-input v-model="addParam.expireTime" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                        <el-switch
+                                style="display: block"
+                                v-model="addParam.expireWarnFlag"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-text="开启"
+                                inactive-text="关闭"
+                                active-value="1"
+                                inactive-value="0">
+                        </el-switch>
                     </el-form-item>
                 </el-form>
 
@@ -110,20 +163,68 @@
                 <el-button type="primary" @click="saveGoodsAddData('addParam')">确 定</el-button>
             </span>
             </el-dialog>
+
+            <el-dialog title="添加批次" :visible.sync="addLotDialogVisible" width="25%">
+                <el-form ref="addParam" :model="addParam" label-width="110px"
+                         label-position="left">
+                    <el-form-item label="商品Id" prop="goodsId">
+                        <el-input v-model="addLotParam.goodsId" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品名称" prop="goodsName">
+                        <el-input v-model="addLotParam.goodsName" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="库存数量" prop="goodsQuantity">
+                        <el-input v-model="addLotParam.goodsQuantity" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品单价" prop="unitPrice">
+                        <el-input v-model="addLotParam.unitPrice" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="采购价" prop="purchasePrice">
+                        <el-input v-model="addLotParam.purchasePrice" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="生产日期" prop="productionDate">
+                        <el-date-picker
+                                v-model="addLotParam.productionDate"
+                                align="right"
+                                type="date"
+                                placeholder="选择生产日期"
+                                :picker-options="pickerOptions">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="保质期（天）" prop="expiryTime">
+                        <el-input v-model="addLotParam.expireTime" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                        <el-switch
+                                style="display: block"
+                                v-model="addLotParam.expireWarnFlag"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-text="开启"
+                                inactive-text="关闭"
+                                active-value="1"
+                                inactive-value="0">
+                        </el-switch>
+                    </el-form-item>
+                </el-form>
+
+                <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelLotAddDialog('addLotParam')">取 消</el-button>
+                <el-button type="primary" @click="saveLotAddData('addLotParam')">确 定</el-button>
+            </span>
+            </el-dialog>
         </div>
     </div>
 </template>
 
 <script>
-    import { deleteGoods, deleteGoodsList, getGoodsList, updateGoods,addGoods } from '../../api/index';
+    import { addGoods, addGoodsLot, deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/index';
 
     export default {
         name: 'goods',
         data() {
             return {
                 query: {
-                    goodsId: null,
-                    goodsName: null,
                     offset: 1,
                     limit: 10
                 },
@@ -135,11 +236,45 @@
                     goodsIdList: []
                 },
                 updateGoodsParam: {},
+                addLotParam: {},
                 goodsList: [],
                 multipleSelection: [],
                 totalSize: 0,
                 updateGoodsDialogVisible: false,
-                addGoodsDialogVisible: false
+                addGoodsDialogVisible: false,
+                addLotDialogVisible: false,
+                pickerOptions: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now();
+                    },
+                    shortcuts: [{
+                        text: '今天',
+                        onClick(picker) {
+                            picker.$emit('pick', new Date());
+                        }
+                    }, {
+                        text: '昨天',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24);
+                            picker.$emit('pick', date);
+                        }
+                    }, {
+                        text: '一周前',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', date);
+                        }
+                    }]
+                },
+                selectOptions: [{
+                    value: '0',
+                    label: '未过期'
+                }, {
+                    value: '1',
+                    label: '已过期'
+                }]
             };
         },
         created() {
@@ -251,7 +386,7 @@
                 this.$refs[formName].clearValidate();
             },
             popupAddGoodsDialog(formName) {
-                this.addParam={};
+                this.addParam = {};
                 this.addGoodsDialogVisible = true;
             },
             saveGoodsAddData(formName) {
@@ -271,6 +406,34 @@
             cancelGoodsAddDialog(formName) {
                 this.addGoodsDialogVisible = false;
                 this.$refs[formName].clearValidate();
+            },
+            formatExpireStatus: function(row, column) {
+                return row.expireStatus === 1 ? '已过期' : row.expireStatus === 0 ? '未过期' : '';
+            },
+            formatExpireWarnFlag: function(row, column) {
+                return row.expireWarnFlag === 1 ? '开启' : row.expireWarnFlag === 0 ? '关闭' : '';
+            },
+            popupAddLotDialog(index, row) {
+                this.addLotParam = row;
+                this.addLotDialogVisible = true;
+            },
+            //取消库存表单
+            cancelLotAddDialog(formName) {
+                this.addLotDialogVisible = false;
+                this.$refs[formName].clearValidate();
+            },
+            saveLotAddData(formName) {
+                addGoodsLot(this.addLotParam).then(() => {
+                    this.$message.success('添加成功');
+                }).catch(() => {
+                    this.$message.error('添加失败');
+                });
+
+                this.addLotDialogVisible = false;
+
+                this.$set(this.query, 'offset', 1);
+
+                this.getGoodsData();
             }
         }
     };
@@ -308,13 +471,5 @@
         margin: auto;
         width: 40px;
         height: 40px;
-    }
-</style>
-
-<!-- 选中行颜色 -->
-<style>
-    .el-table__body tr.current-row > td {
-        color: #fff;
-        background: #2d8cf0 !important;
     }
 </style>
