@@ -25,6 +25,7 @@
                     stripe
                     class="table"
                     ref="multipleTable"
+                    :span-method="mergeRow"
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange"
@@ -208,6 +209,21 @@
             cancelInventoryUpdateDialog(formName) {
                 this.updateInventoryDialogVisible = false;
                 this.$refs[formName].clearValidate();
+            },
+            mergeRow({ row, column, rowIndex, columnIndex }) {
+                if (false) {
+                    if (rowIndex % 2 === 0) {
+                        return {
+                            rowspan: 2,
+                            colspan: 1
+                        };
+                    } else {
+                        return {
+                            rowspan: 0,
+                            colspan: 0
+                        };
+                    }
+                }
             }
         }
     };
