@@ -18,7 +18,7 @@
                 <div class="btn-bell">
                     <el-tooltip
                             effect="dark"
-                            :content="message?`有${message}条未读消息`:`消息中心`"
+                            :content="unreadList.length?`有${unreadList.length}条未读消息`:`消息中心`"
                             placement="bottom"
                     >
                         <router-link to="/tabs">
@@ -50,6 +50,7 @@
 </template>
 <script>
     import bus from '../common/bus';
+    import { getMessageList } from '../../api/index';
 
     export default {
         data() {
@@ -57,9 +58,14 @@
                 collapse: false,
                 fullscreen: false,
                 name: 'linxin',
-                message: 2
+                message: 2,
+                unreadList: []
             };
         },
+        //初始化
+        created() {
+            this.getMessageData();
+        },// 获取库存列表
         computed: {
             username() {
                 let username = localStorage.getItem('ms_username');
@@ -67,6 +73,12 @@
             }
         },
         methods: {
+            getMessageData() {
+                getMessageList().then(response => {
+                    console.log(response);
+                    this.unreadList = response.result.unreadList;
+                });
+            },
             // 用户名下拉菜单选择事件
             handleCommand(command) {
                 if (command == 'loginout') {
