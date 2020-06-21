@@ -284,6 +284,7 @@
             // 获取库存列表
             getGoodsData() {
                 getGoodsList(this.query).then(response => {
+                    console.log(response);
                     this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
                 });
@@ -392,15 +393,15 @@
             saveGoodsAddData(formName) {
                 addGoods(this.addParam).then(() => {
                     this.$message.success('添加成功');
+                    //注意：解决列表偶尔不刷新问题：将刷新操作放到响应函数中。原因：刷新操作比插入操作快，还没插入就查出数据了，导致列表不刷新
+                    this.$set(this.query, 'offset', 1);
+
+                    this.getGoodsData();
                 }).catch(() => {
                     this.$message.error('添加失败');
                 });
 
                 this.addGoodsDialogVisible = false;
-
-                this.$set(this.query, 'offset', 1);
-
-                this.getGoodsData();
             },
             //取消库存表单
             cancelGoodsAddDialog(formName) {
