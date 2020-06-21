@@ -4,22 +4,26 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 库存管理
+                    <i class="el-icon-lx-cascades"></i> 商品管理
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
 
+        <!-- 搜索部分 -->
         <div class="container">
 
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-button type="success" icon="el-icon-plus" class="handle-del mr10"
+                <el-button type="success"
+                           icon="el-icon-plus"
+                           class="handle-del mr10"
                            @click="popupAddGoodsDialog('addParam')">添加商品
                 </el-button>
-                <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
-                <el-input v-model="query.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
-                <el-select v-model="query.expireStatus" placeholder="请选择过期状态" clearable>
+                <el-input v-model="queryParam.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
+                <el-input v-model="queryParam.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
+                <el-select v-model="queryParam.expireStatus" placeholder="请选择过期状态" clearable>
+
                     <el-option
                             v-for="item in selectOptions"
                             :key="item.value"
@@ -31,6 +35,7 @@
                 </el-button>
             </div>
 
+            <!--列表部分-->
             <el-table
                     :data="goodsList"
                     border
@@ -39,31 +44,46 @@
                     ref="multipleTable"
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
-                    @selection-change="handleSelectionChange"
-            >
+                    @selection-change="handleSelectionChange">
+
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
-                <el-table-column prop="unitPrice" label="商品单价" align="center">
-                    <template slot-scope="scope">￥ {{scope.row.unitPrice}}</template>
+                <!-- 批次信息-->
+                <el-table-column label="批次信息" align="center" type="expand" width="100">
+             <template slot-scope="scope">
+                 <el-table :data="scope.row.lotList" border stripe inline>
+                     <el-table-column prop="unitPrice" label="商品单价" align="center">
+                         <template slot-scope="scope">￥ {{scope.row.unitPrice}}</template>
+                     </el-table-column>
+                     <el-table-column label="采购价" align="center">
+                         <template slot-scope="scope">￥ {{scope.row.purchasePrice}}</template>
+                     </el-table-column>
+                     <el-table-column prop="productionDate" label="生产日期" align="center"></el-table-column>
+                     <el-table-column prop="expiryDate" label="过期日期" align="center"></el-table-column>
+                     <el-table-column prop="expireTime" label="保质期（天）" align="center"></el-table-column>
+                     <el-table-column prop="remainTime" label="剩余时间（天）" align="center"></el-table-column>
+                     <el-table-column prop="expireWarnFlag" label="过期提醒" align="center"
+                                      :formatter="formatExpireWarnFlag"></el-table-column>
+                     <el-table-column prop="expireStatus" label="过期状态" align="center"
+                                      :formatter="formatExpireStatus"></el-table-column>
+                     <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
+                     <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
+                     <el-table-column label="操作" width="240" align="center" fixed="right">
+                         <template slot-scope="scope">
+                             <el-button type="success" @click="popupAddLotDialog(scope.$index, scope.row)">添加批次
+                             </el-button>
+                         </template>
+                     </el-table-column>
+                 </el-table>
+             </template>
                 </el-table-column>
-                <el-table-column label="采购价" align="center">
-                    <template slot-scope="scope">￥ {{scope.row.purchasePrice}}</template>
-                </el-table-column>
-                <el-table-column prop="productionDate" label="生产日期" align="center"></el-table-column>
-                <el-table-column prop="expiryDate" label="过期日期" align="center"></el-table-column>
-                <el-table-column prop="expireTime" label="保质期（天）" align="center"></el-table-column>
-                <el-table-column prop="remainTime" label="剩余时间（天）" align="center"></el-table-column>
-                <el-table-column prop="expireWarnFlag" label="过期提醒" align="center"
-                                 :formatter="formatExpireWarnFlag"></el-table-column>
-                <el-table-column prop="expireStatus" label="过期状态" align="center"
-                                 :formatter="formatExpireStatus"></el-table-column>
+
                 <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
+                <!-- 操作栏-->
                 <el-table-column label="操作" width="240" align="center" fixed="right">
                     <template slot-scope="scope">
-                        <el-button type="success" @click="popupAddLotDialog(scope.$index, scope.row)">添加批次
-                        </el-button>
                         <el-button type="primary" @click="popupUpdateGoodsDialog(scope.$index, scope.row)">修改
                         </el-button>
                         <el-button type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -71,12 +91,13 @@
                 </el-table-column>
             </el-table>
 
+            <!--分页栏-->
             <div class="pagination">
                 <el-pagination
                         background
                         layout="total, prev, pager, next"
-                        :current-page="query.offset"
-                        :page-size="query.limit"
+                        :current-page="queryParam.offset"
+                        :page-size="queryParam.limit"
                         :total="totalSize"
                         @current-change="handlePageChange"
                 ></el-pagination>
@@ -224,7 +245,7 @@
         name: 'goods',
         data() {
             return {
-                query: {
+                queryParam: {
                     offset: 1,
                     limit: 10
                 },
@@ -283,7 +304,7 @@
         methods: {
             // 获取库存列表
             getGoodsData() {
-                getGoodsList(this.query).then(response => {
+                getGoodsList(this.queryParam).then(response => {
                     console.log(response);
                     this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
@@ -291,7 +312,7 @@
             },
             // 触发搜索按钮
             handleSearch() {
-                this.$set(this.query, 'offset', 1);
+                this.$set(this.queryParam, 'offset', 1);
                 this.getGoodsData();
             },
             // 删除操作
@@ -343,7 +364,7 @@
                             //删除之后再刷新页面
                             this.$message.success(`删除成功`);
 
-                            this.$set(this.query, 'offset', this.getJumpPage(this.deleteListParam.goodsIdList.length));
+                            this.$set(this.queryParam, 'offset', this.getJumpPage(this.deleteListParam.goodsIdList.length));
 
                             this.getGoodsData();
                         });
@@ -361,12 +382,12 @@
             },
             // 分页导航
             handlePageChange(val) {
-                this.$set(this.query, 'offset', val);
+                this.$set(this.queryParam, 'offset', val);
                 this.getGoodsData();
             },
             //跳转第几页
             getJumpPage(deleteCount) {
-                return Math.ceil((this.totalSize - deleteCount) / this.query.limit);
+                return Math.ceil((this.totalSize - deleteCount) / this.queryParam.limit);
             },
             popupUpdateGoodsDialog(index, row) {
                 this.updateGoodsParam = row;
@@ -394,7 +415,7 @@
                 addGoods(this.addParam).then(() => {
                     this.$message.success('添加成功');
                     //注意：解决列表偶尔不刷新问题：将刷新操作放到响应函数中。原因：刷新操作比插入操作快，还没插入就查出数据了，导致列表不刷新
-                    this.$set(this.query, 'offset', 1);
+                    this.$set(this.queryParam, 'offset', 1);
 
                     this.getGoodsData();
                 }).catch(() => {
@@ -432,7 +453,7 @@
 
                 this.addLotDialogVisible = false;
 
-                this.$set(this.query, 'offset', 1);
+                this.$set(this.queryParam, 'offset', 1);
 
                 this.getGoodsData();
             }
