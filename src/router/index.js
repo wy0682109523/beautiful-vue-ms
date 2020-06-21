@@ -40,9 +40,9 @@ export default new Router({
                     meta: { title: '订单管理' }
                 },
                 {
-                    path: '/tabs',
-                    component: () => import(/* webpackChunkName: "tabs" */ '../components/page/Tabs.vue'),
-                    meta: { title: 'tab选项卡' }
+                    path: '/message',
+                    component: () => import(/* webpackChunkName: "message" */ '../components/page/Message.vue'),
+                    meta: { title: '消息管理' }
                 },
                 {
                     path: '/form',

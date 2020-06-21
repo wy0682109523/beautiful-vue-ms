@@ -86,8 +86,8 @@
                     },
                     {
                         icon: 'el-icon-lx-copy',
-                        index: 'tabs',
-                        title: 'tab选项卡'
+                        index: 'message',
+                        title: '消息管理'
                     },
                     {
                         icon: 'el-icon-lx-calendar',
