@@ -20,17 +20,8 @@
                            class="handle-del mr10"
                            @click="popGoodsAddDialog('addParam')">添加商品
                 </el-button>
-                <el-input v-model="queryParam.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
-                <el-input v-model="queryParam.goodsName" placeholder="商品名称" class="handle-input mr10"></el-input>
-                <el-select v-model="queryParam.expireStatus" placeholder="请选择过期状态" clearable>
-
-                    <el-option
-                            v-for="item in selectOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                    </el-option>
-                </el-select>
+                <el-input v-model="queryParam.goodsId" placeholder="请输入商品ID" class="handle-input mr10"></el-input>
+                <el-input v-model="queryParam.goodsName" placeholder="请输入商品名称" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
                 </el-button>
             </div>
@@ -324,15 +315,7 @@
                             picker.$emit('pick', date);
                         }
                     }]
-                },
-                //下拉选项
-                selectOptions: [{
-                    value: '0',
-                    label: '未过期'
-                }, {
-                    value: '1',
-                    label: '已过期'
-                }]
+                }
             };
         },
         //初始化
@@ -501,7 +484,7 @@
                     this.$set(this.queryParam, 'offset', 1);
 
                     this.getGoodsData();
-                    
+
                 }).catch(() => {
                     this.$message.error('修改失败');
                 });
