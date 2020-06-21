@@ -38,8 +38,8 @@
                         <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-                            <el-dropdown-item>项目仓库</el-dropdown-item>
+                        <a href="http://localhost:8081/#/dashboard" target="_blank">
+                            <el-dropdown-item>下拉菜单测试</el-dropdown-item>
                         </a>
                         <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
