@@ -90,6 +90,11 @@
                         title: '消息管理'
                     },
                     {
+                        icon: 'el-icon-lx-copy',
+                        index: 'system',
+                        title: '系统设置'
+                    },
+                    {
                         icon: 'el-icon-lx-calendar',
                         index: '3',
                         title: '表单相关',

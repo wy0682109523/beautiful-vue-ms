@@ -45,6 +45,11 @@ export default new Router({
                     meta: { title: '消息管理' }
                 },
                 {
+                    path: '/system',
+                    component: () => import(/* webpackChunkName: "system" */ '../components/page/System.vue'),
+                    meta: { title: '系统设置' }
+                },
+                {
                     path: '/form',
                     component: () => import(/* webpackChunkName: "form" */ '../components/page/BaseForm.vue'),
                     meta: { title: '基本表单' }
