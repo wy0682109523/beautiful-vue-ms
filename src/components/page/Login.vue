@@ -21,7 +21,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm()">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips">©比优得芙版权所有</p>
             </el-form>
         </div>
     </div>
@@ -29,16 +29,16 @@
 
 <script>
     export default {
-        data: function () {
+        data: function() {
             return {
                 param: {
                     username: 'admin',
-                    password: '123123',
+                    password: '123123'
                 },
                 rules: {
-                    username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-                    password: [{required: true, message: '请输入密码', trigger: 'blur'}],
-                },
+                    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+                    password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+                }
             };
         },
         methods: {
@@ -54,8 +54,8 @@
                         return false;
                     }
                 });
-            },
-        },
+            }
+        }
     };
 </script>
 
