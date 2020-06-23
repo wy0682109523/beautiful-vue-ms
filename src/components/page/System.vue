@@ -58,14 +58,14 @@
 
             <el-dialog title="添加系统配置" :visible.sync="addDialogVisible" width="30%" center>
 
-                <el-form ref="addParam" :model="addParam" label-width="110px" label-position="left">
-                    <el-form-item label="系统配置-key" prop="systemKey">
+                <el-form ref="addParam" :model="addParam" label-width="125px" label-position="left">
+                    <el-form-item label="系统配置-key：" prop="systemKey">
                         <el-input v-model="addParam.systemKey" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="系统配置-value" prop="systemValue">
+                    <el-form-item label="系统配置-value：" prop="systemValue">
                         <el-input v-model="addParam.systemValue" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="备注" prop="remark">
+                    <el-form-item label="备注：" prop="remark">
                         <el-input v-model="addParam.remark" clearable></el-input>
                     </el-form-item>
                 </el-form>
@@ -102,7 +102,7 @@
 </template>
 
 <script>
-    import { addSystem, deleteSystem, deleteSystemList, getSystemList ,updateSystem} from '../../api/SystemApi';
+    import { addSystem, deleteSystem, deleteSystemList, getSystemList, updateSystem } from '../../api/SystemApi';
 
     export default {
         name: 'system',
@@ -245,11 +245,11 @@
                 this.updateParam = row;
                 this.updateDialogVisible = true;
             },
-            cancelUpdateDialog(formName){
+            cancelUpdateDialog(formName) {
                 this.updateDialogVisible = false;
                 this.$refs[formName].clearValidate();
             },
-            saveUpdateData(){
+            saveUpdateData() {
                 updateSystem(this.updateParam).then(() => {
                     this.$message.success('更新成功');
                 }).catch(() => {

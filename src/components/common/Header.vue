@@ -21,7 +21,8 @@
                             :content="unreadList.length?`有${unreadList.length}条未读消息`:`消息中心`"
                             placement="bottom"
                     >
-                        <router-link to="/tabs">
+                        <!-- 点击跳转 -->
+                        <router-link to="/message">
                             <i class="el-icon-bell"></i>
                         </router-link>
                     </el-tooltip>

@@ -65,12 +65,12 @@
                         title: '系统首页'
                     },
                     {
-                        icon: 'el-icon-lx-cascades',
+                        icon: 'el-icon-user',
                         index: 'table',
                         title: '员工管理'
                     },
                     {
-                        icon: 'el-icon-lx-cascades',
+                        icon: 'el-icon-box',
                         index: 'inventory',
                         title: '库存管理'
                     },
@@ -80,63 +80,19 @@
                         title: '商品管理'
                     },
                     {
-                        icon: 'el-icon-lx-cascades',
+                        icon: 'el-icon-s-order',
                         index: 'order',
                         title: '订单管理'
                     },
                     {
-                        icon: 'el-icon-lx-copy',
+                        icon: 'el-icon-s-comment',
                         index: 'message',
                         title: '消息管理'
                     },
                     {
-                        icon: 'el-icon-lx-copy',
+                        icon: 'el-icon-setting',
                         index: 'system',
                         title: '系统设置'
-                    },
-                    {
-                        icon: 'el-icon-lx-calendar',
-                        index: '3',
-                        title: '表单相关',
-                        subs: [
-                            {
-                                index: 'form',
-                                title: '基本表单'
-                            },
-                            {
-                                index: '3-2',
-                                title: '三级菜单',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '富文本编辑器'
-                                    },
-                                    {
-                                        index: 'markdown',
-                                        title: 'markdown编辑器'
-                                    }
-                                ]
-                            },
-                            {
-                                index: 'upload',
-                                title: '文件上传'
-                            }
-                        ]
-                    },
-                    {
-                        icon: 'el-icon-lx-warn',
-                        index: '7',
-                        title: '错误处理',
-                        subs: [
-                            {
-                                index: 'permission',
-                                title: '权限测试'
-                            },
-                            {
-                                index: '404',
-                                title: '404页面'
-                            }
-                        ]
                     }
                 ]
             };
