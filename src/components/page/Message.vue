@@ -14,7 +14,7 @@
                     <el-table :data="unreadList" :show-header="false" style="width: 100%">
                         <el-table-column>
                             <template slot-scope="scope">
-                                <span class="message-title">{{scope.row.messageTitle}}</span>
+                                <span class="message-title" @click="jumpDetail(scope.$index, scope.row)">{{scope.row.messageTitle}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column prop="date" width="180"></el-table-column>
@@ -106,7 +106,6 @@
             // 获取库存列表
             getMessageData() {
                 getMessageList().then(response => {
-                    console.log(response);
                     this.unreadList = response.result.unreadList;
                     this.readList = response.result.readList;
                     this.recycleList = response.result.recycleList;
@@ -119,8 +118,6 @@
                     messageId: item.messageId,
                     messageStatus: this.messageStatus.read
                 };
-
-                console.log(this.params);
 
                 updateMessage(this.params).then(() => {
                     this.getMessageData();
@@ -157,8 +154,6 @@
                     messageStatus: this.messageStatus.recycle
                 };
 
-                console.log(this.params);
-
                 updateMessage(this.params).then(() => {
                     this.getMessageData();
                 }).catch(() => {
@@ -194,8 +189,6 @@
                     messageStatus: this.messageStatus.unread
                 };
 
-                console.log(this.params);
-
                 updateMessage(this.params).then(() => {
                     this.getMessageData();
                 }).catch(() => {
@@ -212,12 +205,18 @@
 
                 this.params = { messageIdList: messageIdList };
 
-                console.log(this.params);
-
                 deleteMessageList(this.params).then(() => {
                     this.getMessageData();
                 }).catch(() => {
                     this.$message.error('操作失败');
+                });
+            }, jumpDetail(index, row) {
+
+                this.$router.push({
+                    name: 'message-detail',
+                    params: {
+                        messageId: row.messageId
+                    }
                 });
             }
         },

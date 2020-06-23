@@ -37,12 +37,28 @@ export default new Router({
                 {
                     path: '/order',
                     component: () => import(/* webpackChunkName: "order" */ '../components/page/Order.vue'),
-                    meta: { title: '订单管理' }
+                    meta: { title: '订单管理' },
+                    children: [
+                        {
+                            name: 'order-detail',
+                            path: '/detail',
+                            component: () => import('../components/page/OrderDetail.vue'),
+                            meta: { title: '订单详情' }
+                        }
+                    ]
                 },
                 {
                     path: '/message',
                     component: () => import(/* webpackChunkName: "message" */ '../components/page/Message.vue'),
-                    meta: { title: '消息管理' }
+                    meta: { title: '消息管理' },
+                    children: [
+                        {
+                            name: 'message-detail',
+                            path: '/detail',
+                            component: () => import('../components/page/MessageDetail.vue'),
+                            meta: { title: '消息详情' }
+                        }
+                    ]
                 },
                 {
                     path: '/system',
