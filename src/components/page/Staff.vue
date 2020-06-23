@@ -143,7 +143,7 @@
 </template>
 
 <script>
-    import {addStaff, deleteStaff, deleteStaffList, getStaffList, updateStaff} from '../../api/index';
+    import { addStaff, deleteStaff, deleteStaffList, getStaffList, updateStaff } from '../../api/StaffApi';
 
     export default {
         name: 'basetable',
@@ -159,7 +159,7 @@
                 update: {},
                 add: {},
                 delete: {},
-                deleteList: {staffIdList: []},
+                deleteList: { staffIdList: [] },
                 tableData: [],
                 multipleSelection: [],
                 delList: [],
@@ -171,17 +171,17 @@
                 id: -1,
                 rules: {
                     staffName: [
-                        {required: true, message: '请输入员工姓名', trigger: 'blur'},
-                        {min: 1, max: 25, message: '长度在 1 到 25 个字符', trigger: ['change', 'blur']}
+                        { required: true, message: '请输入员工姓名', trigger: 'blur' },
+                        { min: 1, max: 25, message: '长度在 1 到 25 个字符', trigger: ['change', 'blur'] }
                     ],
-                    age: [{required: false, message: '请输入年龄', trigger: 'blur'}, {
+                    age: [{ required: false, message: '请输入年龄', trigger: 'blur' }, {
                         type: 'number',
                         pattern: '^[0-9]{1,3}$',
                         message: '请输入正确年龄',
                         trigger: ['change', 'blur']
                     }],
                     phone: [
-                        {required: false, message: '请输入手机号', trigger: 'blur'},
+                        { required: false, message: '请输入手机号', trigger: 'blur' },
                         {
                             type: 'number',
                             pattern: '/^1[345789][0-9]{9}$/',

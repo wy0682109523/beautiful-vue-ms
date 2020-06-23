@@ -255,15 +255,8 @@
 </template>
 
 <script>
-    import {
-        addGoods,
-        addLot,
-        deleteGoods,
-        deleteGoodsList,
-        getGoodsList,
-        updateGoods,
-        updateLot
-    } from '../../api/index';
+    import { addGoods, deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/GoodsApi';
+    import { addLot, updateLot } from '../../api/LotApi';
 
     export default {
         name: 'goods',

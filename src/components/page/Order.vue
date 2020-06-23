@@ -92,7 +92,7 @@
 </template>
 
 <script>
-    import { createOrder, deleteOrder, deleteOrderList, getOrderList } from '../../api/index';
+    import { createOrder, deleteOrder, deleteOrderList, getOrderList } from '../../api/OrderApi';
 
     export default {
         name: 'order',

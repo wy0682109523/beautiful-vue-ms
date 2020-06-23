@@ -223,7 +223,7 @@
         },
         computed: {
             unreadNum() {
-                return this.unread.length;
+                return this.unreadList.length;
             }
         }
     };
@@ -239,4 +239,3 @@
         margin-top: 30px;
     }
 </style>
-

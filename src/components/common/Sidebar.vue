@@ -66,7 +66,7 @@
                     },
                     {
                         icon: 'el-icon-user',
-                        index: 'table',
+                        index: 'staff',
                         title: '员工管理'
                     },
                     {
