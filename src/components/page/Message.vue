@@ -25,7 +25,7 @@
                         </el-table-column>
                     </el-table>
                     <div class="handle-row">
-                        <el-button type="primary">全部标为已读</el-button>
+                        <el-button type="primary" @click="handleAllRead">全部标为已读</el-button>
                     </div>
                 </el-tab-pane>
 
@@ -40,12 +40,12 @@
                             <el-table-column prop="date" width="150"></el-table-column>
                             <el-table-column width="120">
                                 <template slot-scope="scope">
-                                    <el-button type="danger" @click="handleDel(scope.$index)">删除</el-button>
+                                    <el-button type="danger" @click="handleDelete(scope.$index)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
                         <div class="handle-row">
-                            <el-button type="danger">删除全部</el-button>
+                            <el-button type="danger" @click="handleAllDelete">删除全部</el-button>
                         </div>
                     </template>
                 </el-tab-pane>
@@ -66,7 +66,7 @@
                             </el-table-column>
                         </el-table>
                         <div class="handle-row">
-                            <el-button type="danger">清空回收站</el-button>
+                            <el-button type="danger" @click="handleAllRemove">清空回收站</el-button>
                         </div>
                     </template>
                 </el-tab-pane>
@@ -79,7 +79,7 @@
 
 <script>
 
-    import { getMessageList } from '../../api/index';
+    import { deleteMessageList, getMessageList, updateMessage, updateMessageList } from '../../api/MessageApi';
 
     export default {
         name: 'message',
@@ -89,7 +89,13 @@
                 showHeader: false,
                 unreadList: [],
                 readList: [],
-                recycleList: []
+                recycleList: [],
+                params: {},
+                messageStatus: {
+                    unread: 1,
+                    read: 2,
+                    recycle: 3
+                }
             };
         },
         //初始化
@@ -107,17 +113,112 @@
                 });
             },
             handleRead(index) {
-                const item = this.unread.splice(index, 1);
-                console.log(item);
-                this.read = item.concat(this.read);
+                let item = this.unreadList[index];
+
+                this.params = {
+                    messageId: item.messageId,
+                    messageStatus: this.messageStatus.read
+                };
+
+                console.log(this.params);
+
+                updateMessage(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
             },
-            handleDel(index) {
-                const item = this.read.splice(index, 1);
-                this.recycle = item.concat(this.recycle);
+            handleAllRead() {
+                let messageList = [];
+
+                for (let index in this.unreadList) {
+
+                    let message = {
+                        messageId: this.unreadList[index].messageId,
+                        messageStatus: this.messageStatus.read
+                    };
+
+                    messageList.push(message);
+                }
+
+                this.params = { messageList: messageList };
+
+                updateMessageList(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
+            },
+            handleDelete(index) {
+                let item = this.readList[index];
+
+                this.params = {
+                    messageId: item.messageId,
+                    messageStatus: this.messageStatus.recycle
+                };
+
+                console.log(this.params);
+
+                updateMessage(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
+            },
+            handleAllDelete() {
+                let messageList = [];
+
+                for (let index in this.readList) {
+
+                    let message = {
+                        messageId: this.readList[index].messageId,
+                        messageStatus: this.messageStatus.recycle
+                    };
+
+                    messageList.push(message);
+                }
+
+                this.params = { messageList: messageList };
+
+                updateMessageList(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
             },
             handleRestore(index) {
-                const item = this.recycle.splice(index, 1);
-                this.read = item.concat(this.read);
+                let item = this.recycleList[index];
+
+                this.params = {
+                    messageId: item.messageId,
+                    messageStatus: this.messageStatus.unread
+                };
+
+                console.log(this.params);
+
+                updateMessage(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
+            },
+            handleAllRemove() {
+                let messageIdList = [];
+
+                for (let index in this.recycleList) {
+
+                    messageIdList.push(this.recycleList[index].messageId);
+                }
+
+                this.params = { messageIdList: messageIdList };
+
+                console.log(this.params);
+
+                deleteMessageList(this.params).then(() => {
+                    this.getMessageData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
             }
         },
         computed: {

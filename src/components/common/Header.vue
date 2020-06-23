@@ -51,7 +51,7 @@
 </template>
 <script>
     import bus from '../common/bus';
-    import { getMessageList } from '../../api/index';
+    import { getMessageList } from '../../api/MessageApi';
 
     export default {
         data() {

@@ -219,11 +219,3 @@ export const updateLot = query => {
         data: query
     });
 };
-
-//查询商品列表
-export const getMessageList = query => {
-    return request({
-        url: 'v1/message/getMessageList',
-        method: 'get'
-    });
-};
