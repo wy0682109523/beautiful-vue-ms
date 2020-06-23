@@ -14,7 +14,7 @@
                     <el-table :data="unreadList" :show-header="false" style="width: 100%">
                         <el-table-column>
                             <template slot-scope="scope">
-                                <span class="message-title">{{scope.row.messageContent}}</span>
+                                <span class="message-title">{{scope.row.messageTitle}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column prop="date" width="180"></el-table-column>
@@ -34,7 +34,7 @@
                         <el-table :data="readList" :show-header="false" style="width: 100%">
                             <el-table-column>
                                 <template slot-scope="scope">
-                                    <span class="message-title">{{scope.row.messageContent}}</span>
+                                    <span class="message-title">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="date" width="150"></el-table-column>
@@ -55,7 +55,7 @@
                         <el-table :data="recycleList" :show-header="false" style="width: 100%">
                             <el-table-column>
                                 <template slot-scope="scope">
-                                    <span class="message-title">{{scope.row.messageContent}}</span>
+                                    <span class="message-title">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="date" width="150"></el-table-column>
