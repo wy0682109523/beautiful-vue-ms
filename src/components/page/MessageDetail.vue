@@ -58,21 +58,16 @@
                                 <div style="text-align:center">{{messageInfo.messageTitle}}</div>
                             </el-col>
                         </el-row>
-                        <br>
-                        <br>
-                        <br>
-                        <el-row type="flex" class="row-bg" justify="end">
-                            <el-col :span="6"><span>时间： {{messageInfo.createTime}}</span></el-col>
-                        </el-row>
-                        <br>
-                        <br>
-                        <br>
                     </el-header>
                     <el-main align="center">
                         <div v-html="messageInfo.messageContent" align="center"></div>
                     </el-main>
                     <el-footer style="height: 4px;">
                         <hr>
+                        <el-row type="flex" class="row-bg" justify="end">
+                            <el-col :span="20"><span>消息来源： {{messageSource}}</span></el-col>
+                            <el-col :span="4"><span>时间： {{messageInfo.createTime}}</span></el-col>
+                        </el-row>
                     </el-footer>
                 </el-container>
 
@@ -94,7 +89,8 @@
                 unreadList: [],
                 readList: [],
                 recycleList: [],
-                status: []
+                status: [],
+                messageSource: ''
             };
         },
         created() {
@@ -112,6 +108,9 @@
                 getMessageDetail(this.QueryParam).then((response) => {
                     if (response.result != null) {
                         this.messageInfo = response.result;
+                        if (this.messageInfo.messageSource === 1) {
+                            this.messageSource = '系统消息';
+                        }
                     }
                 }).catch(() => {
                     this.$message.error('查询失败');
