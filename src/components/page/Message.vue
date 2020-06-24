@@ -17,6 +17,11 @@
                                 <span class="message-title" @click="jumpDetail(scope.$index, scope.row)">{{scope.row.messageTitle}}</span>
                             </template>
                         </el-table-column>
+
+                        <el-table-column width="180">
+                            <el-tag type="success">系统消息</el-tag>
+                        </el-table-column>
+
                         <el-table-column prop="createTime" width="180"></el-table-column>
                         <el-table-column width="120">
                             <template slot-scope="scope">
