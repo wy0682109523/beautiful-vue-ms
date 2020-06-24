@@ -21,7 +21,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm()">登录</el-button>
                 </div>
-                <p class="login-tips">©比优得芙版权所有</p>
+                <p class="login-tips">©比优得芙版权所有 2019 ~ 2020</p>
             </el-form>
         </div>
     </div>

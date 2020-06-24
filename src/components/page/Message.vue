@@ -17,7 +17,7 @@
                                 <span class="message-title" @click="jumpDetail(scope.$index, scope.row)">{{scope.row.messageTitle}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="date" width="180"></el-table-column>
+                        <el-table-column prop="createTime" width="180"></el-table-column>
                         <el-table-column width="120">
                             <template slot-scope="scope">
                                 <el-button size="small" @click="handleRead(scope.$index)">标为已读</el-button>
@@ -37,7 +37,7 @@
                                     <span class="message-title">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="date" width="150"></el-table-column>
+                            <el-table-column prop="createTime" width="150"></el-table-column>
                             <el-table-column width="120">
                                 <template slot-scope="scope">
                                     <el-button type="danger" @click="handleDelete(scope.$index)">删除</el-button>
@@ -58,7 +58,7 @@
                                     <span class="message-title">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="date" width="150"></el-table-column>
+                            <el-table-column prop="createTime" width="150"></el-table-column>
                             <el-table-column width="120">
                                 <template slot-scope="scope">
                                     <el-button @click="handleRestore(scope.$index)">还原</el-button>
@@ -109,6 +109,8 @@
                     this.unreadList = response.result.unreadList;
                     this.readList = response.result.readList;
                     this.recycleList = response.result.recycleList;
+                }).catch(() => {
+                    this.$message.error('查询失败');
                 });
             },
             handleRead(index) {
@@ -211,10 +213,9 @@
                     this.$message.error('操作失败');
                 });
             }, jumpDetail(index, row) {
-
                 this.$router.push({
-                    name: 'message-detail',
-                    params: {
+                    path: '/detail',//这个path就是你在router/index.js里边配置的路径
+                    query: {
                         messageId: row.messageId
                     }
                 });

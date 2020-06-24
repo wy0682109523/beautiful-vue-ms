@@ -321,6 +321,8 @@
                 getGoodsList(this.queryParam).then(response => {
                     this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
+                }).catch(() => {
+                    this.$message.error('查询失败');
                 });
             },
             //搜索按钮

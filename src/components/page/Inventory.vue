@@ -111,6 +111,8 @@
                 getInventoryList(this.query).then(response => {
                     this.inventoryList = response.result.inventoryList;
                     this.totalSize = response.result.totalSize;
+                }).catch(() => {
+                    this.$message.error('查询失败');
                 });
             },
             // 触发搜索按钮

@@ -8,6 +8,15 @@ export const getMessageList = () => {
     });
 };
 
+//查询消息详情
+export const getMessageDetail = query => {
+    return request({
+        url: 'v1/message/getMessageDetail',
+        method: 'post',
+        data: query
+    });
+};
+
 //更新消息
 export const updateMessage = query => {
     return request({

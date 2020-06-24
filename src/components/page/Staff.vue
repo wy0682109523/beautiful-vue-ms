@@ -201,6 +201,8 @@
                 getStaffList(this.query).then(res => {
                     this.tableData = res.result.staffList;
                     this.pageTotal = res.result.totalSize;
+                }).catch(() => {
+                    this.$message.error('查询失败');
                 });
             },
             // 触发搜索按钮

@@ -12,12 +12,38 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
-                </el-button>
-                <el-button type="success" icon="el-icon-plus" class="handle-del mr10" @click="popAddDialog">添加系统配置
-                </el-button>
-                <el-input v-model="queryParam.systemKey" placeholder="请输入系统配置key" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                <el-row>
+                    <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
+                    </el-button>
+                    <el-button type="success" icon="el-icon-plus" class="handle-del mr10" @click="popAddDialog">添加系统配置
+                    </el-button>
+                    <el-input v-model="queryParam.systemKey" placeholder="请输入系统配置key"
+                              class="handle-input mr10"></el-input>
+                    <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                    <el-switch
+                            style="display: inline;margin-left: 10px"
+                            v-model="warnTypeOnOff"
+                            active-color="#13ce66"
+                            inactive-color="#ff4949"
+                            active-text="开启消息通知"
+                            inactive-text="关闭消息通知"
+                            @change="switchOnOff"
+                    >
+                    </el-switch>
+
+                    <div class="handle-box" v-show="warnTypeOnOff" style="display: inline;margin-left: 10px">
+                        <template>
+
+                            <el-checkbox-group v-model="warnTypeList" style="display: inline" @change="handleCheckBox">
+                                <el-checkbox label="1">站内消息</el-checkbox>
+                                <el-checkbox label="2">邮件消息</el-checkbox>
+                                <el-checkbox label="3">短信消息</el-checkbox>
+                            </el-checkbox-group>
+
+                        </template>
+                    </div>
+                </el-row>
+
             </div>
 
             <el-table
@@ -84,7 +110,7 @@
                         <el-input v-model="updateParam.systemKey" clearable :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="系统配置-value" prop="systemValue">
-                        <el-input v-model="updateParam.systemValue" clearable></el-input>
+                        <el-input v-model="updateParam.systemValue" clearable :disabled="disableUpdateFlag"></el-input>
                     </el-form-item>
                     <el-form-item label="备注" prop="remark">
                         <el-input v-model="updateParam.remark" clearable></el-input>
@@ -125,7 +151,11 @@
                 multipleSelection: [],
                 totalSize: 0,
                 addDialogVisible: false,
-                updateDialogVisible: false
+                updateDialogVisible: false,
+                warnTypeOnOff: false,
+                warnTypeList: [],
+                sckKey: 'sck-expire-warn-type',
+                disableUpdateFlag: false
             };
         },
         created() {
@@ -135,8 +165,22 @@
             // 获取库存列表
             getSystemData() {
                 getSystemList(this.queryParam).then(response => {
+                    console.log(response);
                     this.systemList = response.result.systemList;
                     this.totalSize = response.result.totalSize;
+                    //自动展开选项
+                    for (let index in this.systemList) {
+                        if (this.sckKey === this.systemList[index].systemKey) {
+                            let value = this.systemList[index].systemValue;
+                            if (value.length !== 0) {
+                                let warnTypeList = value.split(',');
+                                if (warnTypeList.length !== 0) {
+                                    this.warnTypeList = warnTypeList;
+                                    this.warnTypeOnOff = true;
+                                }
+                            }
+                        }
+                    }
                 });
             },
             // 触发搜索按钮
@@ -241,9 +285,9 @@
                 this.$refs[formName].clearValidate();
             },
             popUpdateDialog(index, row) {
-                console.log(row);
                 this.updateParam = row;
                 this.updateDialogVisible = true;
+                this.disableUpdateFlag = this.sckKey === this.updateParam.systemKey;
             },
             cancelUpdateDialog(formName) {
                 this.updateDialogVisible = false;
@@ -257,6 +301,42 @@
                 });
 
                 this.updateDialogVisible = false;
+            },
+            switchOnOff(flag) {
+                if (!flag) {
+                    this.warnTypeList = [];
+                }
+
+                this.warnTypeOnOff = flag;
+
+                this.updateParam = {
+                    systemKey: this.sckKey,
+                    systemValue: ''
+                };
+
+                updateSystem(this.updateParam).then(() => {
+                    this.$message.success('更新成功');
+                    this.$set(this.queryParam, 'offset', 1);
+                    this.getSystemData();
+                }).catch(() => {
+                    this.$message.error('更新失败');
+                });
+
+            }, handleCheckBox(value) {
+                this.warnTypeList = value;
+
+                this.updateParam = {
+                    systemKey: this.sckKey,
+                    systemValue: this.warnTypeList.join(',')
+                };
+
+                updateSystem(this.updateParam).then(() => {
+                    this.$message.success('更新成功');
+                    this.$set(this.queryParam, 'offset', 1);
+                    this.getSystemData();
+                }).catch(() => {
+                    this.$message.error('更新失败');
+                });
             }
         }
     };

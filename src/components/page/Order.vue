@@ -137,6 +137,8 @@
                 getOrderList(this.query).then(response => {
                     this.orderList = response.result.orderList;
                     this.totalSize = response.result.totalSize;
+                }).catch(() => {
+                    this.$message.error('查询失败');
                 });
             },
             // 触发搜索按钮
