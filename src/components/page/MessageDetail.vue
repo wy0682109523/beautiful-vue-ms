@@ -10,54 +10,45 @@
         <!-- 主题内容-->
         <div class="container">
             <el-container>
-                <el-aside class="el-aside">
-                    <el-menu :default-openeds="['1']" :unique-opened="true" height="100%">
-                        <el-submenu index="1">
-                            <template slot="title"><i class="el-icon-message"></i>未读</template>
-                            <el-menu-item-group>
-                                <template slot="title">分组一</template>
-                                <el-menu-item index="1-1">选项1</el-menu-item>
-                                <el-menu-item index="1-2">选项2</el-menu-item>
+                <el-aside style="width: 25rem;">
+
+                    <el-menu :default-active="this.$route.path" :default-openeds="status" :unique-opened="true"
+                             height="100%" :router="true">
+
+                        <el-submenu index="first">
+                            <template slot="title"><i class="el-icon-message"></i>未读消息</template>
+
+                            <el-menu-item-group title="分组1">
+                                <el-menu-item :index="'detail?messageId='+item.messageId"
+                                              v-for="(item,index) in unreadList" :key="index">
+                                    {{index+1}}、{{item.messageTitle}}
+                                </el-menu-item>
                             </el-menu-item-group>
-                            <el-menu-item-group title="分组2">
-                                <el-menu-item index="1-3">选项3</el-menu-item>
-                            </el-menu-item-group>
-                            <el-submenu index="1-4">
-                                <template slot="title">选项4</template>
-                                <el-menu-item index="1-4-1">选项4-1</el-menu-item>
-                            </el-submenu>
+
                         </el-submenu>
-                        <el-submenu index="2">
-                            <template slot="title"><i class="el-icon-menu"></i>已读</template>
-                            <el-menu-item-group>
-                                <template slot="title">分组一</template>
-                                <el-menu-item index="2-1">选项1</el-menu-item>
-                                <el-menu-item index="2-2">选项2</el-menu-item>
-                            </el-menu-item-group>
+
+                        <el-submenu index="second">
+                            <template slot="title"><i class="el-icon-menu"></i>已读消息</template>
                             <el-menu-item-group title="分组2">
-                                <el-menu-item index="2-3">选项3</el-menu-item>
+                                <el-menu-item :index="'detail?messageId='+item.messageId"
+                                              v-for="(item,index) in readList" :key="index">
+                                    {{index+1}}、{{item.messageTitle}}
+                                </el-menu-item>
                             </el-menu-item-group>
-                            <el-submenu index="2-4">
-                                <template slot="title">选项4</template>
-                                <el-menu-item index="2-4-1">选项4-1</el-menu-item>
-                            </el-submenu>
                         </el-submenu>
-                        <el-submenu index="3">
-                            <template slot="title"><i class="el-icon-setting"></i>回收站</template>
-                            <el-menu-item-group>
-                                <template slot="title">分组一</template>
-                                <el-menu-item index="3-1">选项1</el-menu-item>
-                                <el-menu-item index="3-2">选项2</el-menu-item>
+
+                        <el-submenu index="third">
+                            <template slot="title"><i class="el-icon-delete"></i>回收站消息</template>
+                            <el-menu-item-group title="分组3">
+                                <el-menu-item :index="'detail?messageId='+item.messageId"
+                                              v-for="(item,index) in recycleList" :key="index">
+                                    {{index+1}}、{{item.messageTitle}}
+                                </el-menu-item>
                             </el-menu-item-group>
-                            <el-menu-item-group title="分组2">
-                                <el-menu-item index="3-3">选项3</el-menu-item>
-                            </el-menu-item-group>
-                            <el-submenu index="3-4">
-                                <template slot="title">选项4</template>
-                                <el-menu-item index="3-4-1">选项4-1</el-menu-item>
-                            </el-submenu>
                         </el-submenu>
+
                     </el-menu>
+
                 </el-aside>
 
                 <el-container>
@@ -100,7 +91,10 @@
             return {
                 QueryParam: { messageId: null },
                 messageInfo: {},
-                messageList: []
+                unreadList: [],
+                readList: [],
+                recycleList: [],
+                status: []
             };
         },
         created() {
@@ -111,7 +105,10 @@
 
                 this.QueryParam.messageId = this.$route.query.messageId;
 
-                console.log(this.QueryParam);
+                this.status = [this.$route.query.status];
+
+                console.log(this.status);
+
                 getMessageDetail(this.QueryParam).then((response) => {
                     if (response.result != null) {
                         this.messageInfo = response.result;
@@ -122,9 +119,9 @@
             },
             getMessageListData() {
                 getMessageList().then(response => {
-                    this.messageList = response.result.unreadList;
-                    //this.readList = response.result.readList;
-                    //this.recycleList = response.result.recycleList;
+                    this.unreadList = response.result.unreadList;
+                    this.readList = response.result.readList;
+                    this.recycleList = response.result.recycleList;
                 }).catch(() => {
                     this.$message.error('查询失败');
                 });
@@ -152,7 +149,6 @@
 
     .el-aside {
         height: 67em;
-        width: 200px;
         border: solid 1px #e6e6e6;
     }
 </style>

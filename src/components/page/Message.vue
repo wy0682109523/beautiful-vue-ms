@@ -8,7 +8,7 @@
 
         <div class="container">
 
-            <el-tabs v-model="message">
+            <el-tabs v-model="message" @tab-click="handleTabClick">
 
                 <el-tab-pane :label="`未读消息(${unreadList.length})`" name="first">
                     <el-table :data="unreadList" :show-header="false" style="width: 100%">
@@ -34,7 +34,7 @@
                         <el-table :data="readList" :show-header="false" style="width: 100%">
                             <el-table-column>
                                 <template slot-scope="scope">
-                                    <span class="message-title">{{scope.row.messageTitle}}</span>
+                                    <span class="message-title" @click="jumpDetail(scope.$index, scope.row)">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="createTime" width="150"></el-table-column>
@@ -55,7 +55,7 @@
                         <el-table :data="recycleList" :show-header="false" style="width: 100%">
                             <el-table-column>
                                 <template slot-scope="scope">
-                                    <span class="message-title">{{scope.row.messageTitle}}</span>
+                                    <span class="message-title" @click="jumpDetail(scope.$index, scope.row)">{{scope.row.messageTitle}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="createTime" width="150"></el-table-column>
@@ -91,6 +91,7 @@
                 readList: [],
                 recycleList: [],
                 params: {},
+                status: 'first',
                 messageStatus: {
                     unread: 1,
                     read: 2,
@@ -216,9 +217,13 @@
                 this.$router.push({
                     path: '/detail',//这个path就是你在router/index.js里边配置的路径
                     query: {
-                        messageId: row.messageId
+                        messageId: row.messageId,
+                        status: this.status
                     }
                 });
+            },
+            handleTabClick(value) {
+                this.status = value.name;
             }
         },
         computed: {
