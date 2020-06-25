@@ -76,7 +76,6 @@
         methods: {
             getMessageData() {
                 getMessageList().then(response => {
-                    console.log(response);
                     this.unreadList = response.result.unreadList;
                 });
             },

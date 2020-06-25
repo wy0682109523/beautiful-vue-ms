@@ -12,14 +12,16 @@
             <el-container>
                 <el-aside style="width: 25rem;">
 
-                    <el-menu :default-openeds="status" :unique-opened="true" height="100%" @select="handleSelect">
+                    <el-menu :default-active="defaultActiveIndex" :default-openeds="status" :unique-opened="true"
+                             height="100%"
+                             @select="handleSelect">
 
                         <el-submenu index="first">
                             <template slot="title"><i class="el-icon-message"></i>未读消息</template>
 
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in unreadList" :key="index">
-                                    {{index+1}}.{{item.messageTitle}}
+                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
 
@@ -29,7 +31,7 @@
                             <template slot="title"><i class="el-icon-menu"></i>已读消息</template>
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in readList" :key="index">
-                                    {{index+1}}.{{item.messageTitle}}
+                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
@@ -38,7 +40,7 @@
                             <template slot="title"><i class="el-icon-delete"></i>回收站消息</template>
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in recycleList" :key="index">
-                                    {{index+1}}.{{item.messageTitle}}
+                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
@@ -54,6 +56,27 @@
                                 <div style="text-align:center">{{messageInfo.messageTitle}}</div>
                             </el-col>
                         </el-row>
+                        <br>
+                        <br>
+                        <br>
+                        <el-row type="flex" class="row-bg" justify="end">
+                            <el-col :span="6">
+                                <el-button-group>
+                                    <el-button size="small"
+                                               :type="messageInfo.messageStatus===1?'primary':messageInfo.messageStatus===2?'warning':'success'"
+                                               @click="handleButton(messageInfo)"
+                                               :icon="messageInfo.messageStatus===1?'el-icon-check':messageInfo.messageStatus===2?'el-icon-warning-outline':'el-icon-refresh-left'">
+                                        {{messageInfo.messageStatus===1?'标为已读':messageInfo.messageStatus===2?'放入回收站':'还原未读'}}
+                                    </el-button>
+                                    <el-button size="small"
+                                               type="danger"
+                                               icon="el-icon-delete-solid"
+                                               @click="handleDelete(messageInfo)">直接删除
+                                    </el-button>
+                                </el-button-group>
+
+                            </el-col>
+                        </el-row>
                     </el-header>
                     <el-main align="center">
                         <div v-html="messageInfo.messageContent" align="center"></div>
@@ -61,7 +84,8 @@
                     <el-footer style="height: 4px;">
                         <hr>
                         <el-row type="flex" class="row-bg" justify="end">
-                            <el-col :span="20"><span>消息来源： {{messageInfo.messageSource===1?'系统消息':'其他消息'}}</span></el-col>
+                            <el-col :span="20"><span>消息来源： {{messageInfo.messageSource===1?'系统消息':'其他消息'}}</span>
+                            </el-col>
                             <el-col :span="4"><span>时间： {{messageInfo.createTime}}</span></el-col>
                         </el-row>
                     </el-footer>
@@ -74,7 +98,7 @@
 </template>
 
 <script>
-    import { getMessageDetail, getMessageList } from '../../api/MessageApi';
+    import { deleteMessageList, getMessageDetail, getMessageList, updateMessage } from '../../api/MessageApi';
 
     export default {
         name: 'MessageDetail',
@@ -85,20 +109,26 @@
                 unreadList: [],
                 readList: [],
                 recycleList: [],
-                status: ['first']
+                status: ['first'],
+                defaultActiveIndex: 0
             };
         },
         created() {
-            this.getMessageDetailData();
             this.getMessageListData();
+            this.getMessageDetailData();
         }, methods: {
             getMessageDetailData(messageId, status) {
-
+                console.log('删除传值', messageId);
                 if (messageId != null) {
                     this.QueryParam.messageId = messageId;
                 } else {
                     this.QueryParam.messageId = this.$route.query.messageId;
                 }
+                console.log('参数传值', this.QueryParam.messageId);
+                this.defaultActiveIndex = this.QueryParam.messageId;
+
+                console.log('默认选中', this.defaultActiveIndex);
+
                 if (status != null) {
                     this.status = [status];
                 } else {
@@ -133,6 +163,85 @@
             handleSelect(index, indexPath) {
                 this.getMessageDetailData(index, indexPath[0]);
                 this.getMessageListData();
+            },
+            handleButton(messageInfo) {
+                let status = '';
+                let msgStatus = 'first';
+
+                if (messageInfo.messageStatus === 1) {
+                    status = 2;
+                    msgStatus = 'second';
+                } else if (messageInfo.messageStatus === 2) {
+                    status = 3;
+                    msgStatus = 'third';
+                } else if (messageInfo.messageStatus === 3) {
+                    status = 1;
+                    msgStatus = 'first';
+                }
+
+                let params = {
+                    messageId: messageInfo.messageId,
+                    messageStatus: status
+                };
+
+                updateMessage(params).then(() => {
+                    this.getMessageDetailData(messageInfo.messageId, msgStatus);
+                    this.getMessageListData();
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
+            },
+            handleDelete(messageInfo) {
+
+                let msgStatus;
+                let messageId;
+
+                if (messageInfo.messageStatus === 1) {
+                    msgStatus = 'first';
+
+                    this.unreadList.splice(this.unreadList.findIndex((msg) => {
+                        return msg.messageId === messageInfo.messageId;
+                    }), 1);
+
+                    if (this.unreadList.length !== 0) {
+                        messageId = this.unreadList[0].messageId;
+                    }
+
+                } else if (messageInfo.messageStatus === 2) {
+                    msgStatus = 'second';
+
+                    this.readList.splice(this.readList.findIndex((msg) => {
+                        return msg.messageId === messageInfo.messageId;
+                    }), 1);
+
+                    if (this.readList.length !== 0) {
+                        messageId = this.readList[0].messageId;
+                    }
+
+                } else if (messageInfo.messageStatus === 3) {
+                    msgStatus = 'third';
+
+
+                    this.recycleList.splice(this.recycleList.findIndex((msg) => {
+                        return msg.messageId === messageInfo.messageId;
+                    }), 1);
+
+                    if (this.recycleList.length !== 0) {
+                        messageId = this.recycleList[0].messageId;
+                    }
+                }
+
+                let params = { messageIdList: [messageInfo.messageId] };
+
+                console.log('删除传值前', messageId);
+                this.getMessageListData();
+                this.getMessageDetailData(messageId, msgStatus);
+
+                deleteMessageList(params).then(() => {
+
+                }).catch(() => {
+                    this.$message.error('操作失败');
+                });
             }
         },
         computed: {}
