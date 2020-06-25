@@ -19,7 +19,12 @@
                         </el-table-column>
 
                         <el-table-column width="180">
-                            <el-tag type="success">系统消息</el-tag>
+                            <template slot-scope="scope">
+                                <el-tag
+                                        :type="scope.row.messageSource === 1 ? 'success' : 'warning'"
+                                        disable-transitions>{{scope.row.messageSource === 1?'系统消息':'其他消息'}}
+                                </el-tag>
+                            </template>
                         </el-table-column>
 
                         <el-table-column prop="createTime" width="180"></el-table-column>

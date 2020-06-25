@@ -12,16 +12,14 @@
             <el-container>
                 <el-aside style="width: 25rem;">
 
-                    <el-menu :default-active="this.$route.path" :default-openeds="status" :unique-opened="true"
-                             height="100%" :router="true">
+                    <el-menu :default-openeds="status" :unique-opened="true" height="100%" @select="handleSelect">
 
                         <el-submenu index="first">
                             <template slot="title"><i class="el-icon-message"></i>未读消息</template>
 
-                            <el-menu-item-group title="分组1">
-                                <el-menu-item :index="'detail?messageId='+item.messageId"
-                                              v-for="(item,index) in unreadList" :key="index">
-                                    {{index+1}}、{{item.messageTitle}}
+                            <el-menu-item-group>
+                                <el-menu-item :index="item.messageId" v-for="(item,index) in unreadList" :key="index">
+                                    {{index+1}}.{{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
 
@@ -29,20 +27,18 @@
 
                         <el-submenu index="second">
                             <template slot="title"><i class="el-icon-menu"></i>已读消息</template>
-                            <el-menu-item-group title="分组2">
-                                <el-menu-item :index="'detail?messageId='+item.messageId"
-                                              v-for="(item,index) in readList" :key="index">
-                                    {{index+1}}、{{item.messageTitle}}
+                            <el-menu-item-group>
+                                <el-menu-item :index="item.messageId" v-for="(item,index) in readList" :key="index">
+                                    {{index+1}}.{{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
 
                         <el-submenu index="third">
                             <template slot="title"><i class="el-icon-delete"></i>回收站消息</template>
-                            <el-menu-item-group title="分组3">
-                                <el-menu-item :index="'detail?messageId='+item.messageId"
-                                              v-for="(item,index) in recycleList" :key="index">
-                                    {{index+1}}、{{item.messageTitle}}
+                            <el-menu-item-group>
+                                <el-menu-item :index="item.messageId" v-for="(item,index) in recycleList" :key="index">
+                                    {{index+1}}.{{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
@@ -65,7 +61,7 @@
                     <el-footer style="height: 4px;">
                         <hr>
                         <el-row type="flex" class="row-bg" justify="end">
-                            <el-col :span="20"><span>消息来源： {{messageSource}}</span></el-col>
+                            <el-col :span="20"><span>消息来源： {{messageInfo.messageSource===1?'系统消息':'其他消息'}}</span></el-col>
                             <el-col :span="4"><span>时间： {{messageInfo.createTime}}</span></el-col>
                         </el-row>
                     </el-footer>
@@ -89,21 +85,25 @@
                 unreadList: [],
                 readList: [],
                 recycleList: [],
-                status: [],
-                messageSource: ''
+                status: ['first']
             };
         },
         created() {
             this.getMessageDetailData();
             this.getMessageListData();
         }, methods: {
-            getMessageDetailData() {
+            getMessageDetailData(messageId, status) {
 
-                this.QueryParam.messageId = this.$route.query.messageId;
-
-                this.status = [this.$route.query.status];
-
-                console.log(this.status);
+                if (messageId != null) {
+                    this.QueryParam.messageId = messageId;
+                } else {
+                    this.QueryParam.messageId = this.$route.query.messageId;
+                }
+                if (status != null) {
+                    this.status = [status];
+                } else {
+                    this.status = [this.$route.query.status];
+                }
 
                 getMessageDetail(this.QueryParam).then((response) => {
                     if (response.result != null) {
@@ -128,6 +128,10 @@
             handleClick(row) {
                 this.QueryParam.messageId = row.messageId;
                 this.getMessageDetailData();
+                this.getMessageListData();
+            },
+            handleSelect(index, indexPath) {
+                this.getMessageDetailData(index, indexPath[0]);
                 this.getMessageListData();
             }
         },
