@@ -118,16 +118,14 @@
             this.getMessageDetailData();
         }, methods: {
             getMessageDetailData(messageId, status) {
-                console.log('删除传值', messageId);
+                //遗留问题：删除和修改消息状态后，默认选中行以及后续选中行显示混乱，前几行没问题，后面行有问题，有待解决
                 if (messageId != null) {
                     this.QueryParam.messageId = messageId;
                 } else {
                     this.QueryParam.messageId = this.$route.query.messageId;
                 }
-                console.log('参数传值', this.QueryParam.messageId);
-                this.defaultActiveIndex = this.QueryParam.messageId;
 
-                console.log('默认选中', this.defaultActiveIndex);
+                this.defaultActiveIndex = this.QueryParam.messageId;
 
                 if (status != null) {
                     this.status = [status];
@@ -157,14 +155,16 @@
             },
             handleClick(row) {
                 this.QueryParam.messageId = row.messageId;
-                this.getMessageDetailData();
                 this.getMessageListData();
+                this.getMessageDetailData();
             },
             handleSelect(index, indexPath) {
-                this.getMessageDetailData(index, indexPath[0]);
                 this.getMessageListData();
+                this.getMessageDetailData(index, indexPath[0]);
             },
             handleButton(messageInfo) {
+
+                //修改状态后，默认跳转到已修改的状态列表
                 let status = '';
                 let msgStatus = 'first';
 
@@ -185,14 +185,15 @@
                 };
 
                 updateMessage(params).then(() => {
-                    this.getMessageDetailData(messageInfo.messageId, msgStatus);
                     this.getMessageListData();
+                    this.getMessageDetailData(messageInfo.messageId, msgStatus);
                 }).catch(() => {
                     this.$message.error('操作失败');
                 });
             },
             handleDelete(messageInfo) {
 
+                //删除后默认选中当前列表的第一行数据
                 let msgStatus;
                 let messageId;
 
@@ -233,12 +234,9 @@
 
                 let params = { messageIdList: [messageInfo.messageId] };
 
-                console.log('删除传值前', messageId);
-                this.getMessageListData();
-                this.getMessageDetailData(messageId, msgStatus);
-
                 deleteMessageList(params).then(() => {
-
+                    this.getMessageListData();
+                    this.getMessageDetailData(messageId, msgStatus);
                 }).catch(() => {
                     this.$message.error('操作失败');
                 });
