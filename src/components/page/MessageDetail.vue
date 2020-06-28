@@ -52,13 +52,14 @@
                 <el-container>
                     <el-header align="center" height="150px">
                         <el-row type="flex" class="row-bg" justify="center">
-                            <el-col :span="6">
+                            <el-col :span="20">
                                 <div style="text-align:center">{{messageInfo.messageId}} -
                                     {{messageInfo.messageTitle}}
                                 </div>
                             </el-col>
                         </el-row>
                         <br>
+                        <hr style="border: none;background-color: #e6e6e6;height: 1px;">
                         <br>
                         <br>
                         <el-row type="flex" class="row-bg" justify="end">
@@ -80,6 +81,7 @@
                             </el-col>
                         </el-row>
                     </el-header>
+                    <hr style="border: none;background-color: #e6e6e6;height: 1px;">
                     <el-main align="center">
                         <div v-html="messageInfo.messageContent" align="center"></div>
                     </el-main>
@@ -88,7 +90,7 @@
                         <el-row type="flex" class="row-bg" justify="end">
                             <el-col :span="20"><span>消息来源： {{messageInfo.messageSource===1?'系统消息':'其他消息'}}</span>
                             </el-col>
-                            <el-col :span="4"><span>时间： {{messageInfo.createTime}}</span></el-col>
+                            <el-col :span="16"><span>时间： {{messageInfo.createTime}}</span></el-col>
                         </el-row>
                     </el-footer>
                 </el-container>
@@ -120,7 +122,7 @@
             this.getMessageDetailData();
         }, methods: {
             getMessageDetailData(messageId, status, flag) {
-                //遗留问题：删除之后，默认选中行，为第二列，有待解决
+                //遗留问题：删除之后，默认选中行，为第二列，有待解决，临时解决办法：删除不显示默认选中行
                 if (messageId != null) {
                     this.QueryParam.messageId = messageId;
                 } else {
@@ -245,7 +247,7 @@
                 deleteMessageList(params).then(() => {
                     console.log('删除成功回调方法：', messageId);
                     this.getMessageListData();
-                    this.getMessageDetailData(messageId, msgStatus, true);
+                    this.getMessageDetailData(messageId, msgStatus);
                 }).catch(() => {
                     this.$message.error('操作失败');
                 });
