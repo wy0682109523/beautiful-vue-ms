@@ -52,8 +52,8 @@
                             <el-table-column prop="expiryDate" label="过期日期" align="center"></el-table-column>
                             <el-table-column prop="expireTime" label="保质期（天）" align="center"></el-table-column>
                             <el-table-column prop="remainTime" label="剩余时间（天）" align="center"></el-table-column>
-                            <el-table-column prop="expireWarnFlag" label="过期提醒" align="center"
-                                             :formatter="formatExpireWarnFlag"></el-table-column>
+                            <el-table-column prop="expireRemindFlag" label="过期提醒" align="center"
+                                             :formatter="formatExpireRemindFlag"></el-table-column>
                             <el-table-column prop="expireStatus" label="过期状态" align="center"
                                              :formatter="formatExpireStatus"></el-table-column>
                             <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
@@ -145,10 +145,10 @@
                     <el-form-item label="保质期（天）" prop="expiryTime">
                         <el-input v-model="addParam.expireTime" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                    <el-form-item label="过期提醒" prop="expireRemindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="addParam.expireWarnFlag"
+                                v-model="addParam.expireRemindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -195,10 +195,10 @@
                     <el-form-item label="保质期（天）" prop="expiryTime">
                         <el-input v-model="addLotParam.expireTime" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                    <el-form-item label="过期提醒" prop="expireRemindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="addLotParam.expireWarnFlag"
+                                v-model="addLotParam.expireRemindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -231,10 +231,10 @@
                     <el-form-item label="采购价" prop="purchasePrice">
                         <el-input v-model="updateLotParam.purchasePrice" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireWarnFlag">
+                    <el-form-item label="过期提醒" prop="expireRemindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="updateLotParam.expireWarnFlag"
+                                v-model="updateLotParam.expireRemindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -400,8 +400,8 @@
                 return row.expireStatus === 1 ? '已过期' : row.expireStatus === 0 ? '未过期' : '';
             },
             //格式化过期警告
-            formatExpireWarnFlag: function(row, column) {
-                return row.expireWarnFlag === 1 ? '开启' : row.expireWarnFlag === 0 ? '关闭' : '';
+            formatExpireRemindFlag: function(row, column) {
+                return row.expireRemindFlag === 1 ? '开启' : row.expireRemindFlag === 0 ? '关闭' : '';
             },
             popGoodsAddDialog(formName) {
                 this.addParam = {};
