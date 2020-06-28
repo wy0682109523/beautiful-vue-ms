@@ -53,7 +53,9 @@
                     <el-header align="center" height="150px">
                         <el-row type="flex" class="row-bg" justify="center">
                             <el-col :span="6">
-                                <div style="text-align:center">{{messageInfo.messageTitle}}</div>
+                                <div style="text-align:center">{{messageInfo.messageId}} -
+                                    {{messageInfo.messageTitle}}
+                                </div>
                             </el-col>
                         </el-row>
                         <br>
@@ -117,15 +119,21 @@
             this.getMessageListData();
             this.getMessageDetailData();
         }, methods: {
-            getMessageDetailData(messageId, status) {
-                //遗留问题：删除和修改消息状态后，默认选中行以及后续选中行显示混乱，前几行没问题，后面行有问题，有待解决
+            getMessageDetailData(messageId, status, flag) {
+                //遗留问题：删除之后，默认选中行，为第二列，有待解决
                 if (messageId != null) {
                     this.QueryParam.messageId = messageId;
                 } else {
                     this.QueryParam.messageId = this.$route.query.messageId;
+                    //第一次进来，默认选中当前查询页
+                    this.defaultActiveIndex = this.QueryParam.messageId;
                 }
 
-                this.defaultActiveIndex = this.QueryParam.messageId;
+                if (flag) {
+                    this.defaultActiveIndex = messageId;
+                    //处理当前选中行时，不需要设置默认选中；删除和更新之后，需要设置默认选中行为传进来的行
+                    console.log('默认选中行：messageId=', this.defaultActiveIndex);
+                }
 
                 if (status != null) {
                     this.status = [status];
@@ -186,13 +194,13 @@
 
                 updateMessage(params).then(() => {
                     this.getMessageListData();
-                    this.getMessageDetailData(messageInfo.messageId, msgStatus);
+                    this.getMessageDetailData(messageInfo.messageId, msgStatus, true);
                 }).catch(() => {
                     this.$message.error('操作失败');
                 });
             },
             handleDelete(messageInfo) {
-
+                this.defaultActiveIndex = null;
                 //删除后默认选中当前列表的第一行数据
                 let msgStatus;
                 let messageId;
@@ -235,8 +243,9 @@
                 let params = { messageIdList: [messageInfo.messageId] };
 
                 deleteMessageList(params).then(() => {
+                    console.log('删除成功回调方法：', messageId);
                     this.getMessageListData();
-                    this.getMessageDetailData(messageId, msgStatus);
+                    this.getMessageDetailData(messageId, msgStatus, true);
                 }).catch(() => {
                     this.$message.error('操作失败');
                 });
