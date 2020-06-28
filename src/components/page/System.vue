@@ -154,7 +154,7 @@
                 updateDialogVisible: false,
                 warnTypeOnOff: false,
                 warnTypeList: [],
-                sckKey: 'sck-expire-warn-type',
+                sckKey: 'sck-expire-remind-type',
                 disableUpdateFlag: false
             };
         },
