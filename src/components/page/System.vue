@@ -37,7 +37,7 @@
                             <el-checkbox-group v-model="warnTypeList" style="display: inline" @change="handleCheckBox">
                                 <el-checkbox label="1">站内消息</el-checkbox>
                                 <el-checkbox label="2">邮件消息</el-checkbox>
-                                <el-checkbox label="3">短信消息</el-checkbox>
+                                <el-checkbox label="3" disabled >短信消息</el-checkbox>
                             </el-checkbox-group>
 
                         </template>
