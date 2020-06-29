@@ -35,6 +35,11 @@ export default new Router({
                     meta: { title: '商品管理' }
                 },
                 {
+                    path: '/cart',
+                    component: () => import(/* webpackChunkName: "cart" */ '../components/page/Cart.vue'),
+                    meta: { title: '购物管理' }
+                },
+                {
                     path: '/order',
                     component: () => import(/* webpackChunkName: "order" */ '../components/page/Order.vue'),
                     meta: { title: '订单管理' }

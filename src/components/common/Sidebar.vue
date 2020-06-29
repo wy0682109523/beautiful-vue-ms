@@ -80,6 +80,11 @@
                         title: '商品管理'
                     },
                     {
+                        icon: 'el-icon-shopping-cart-2',
+                        index: 'cart',
+                        title: '购物管理'
+                    },
+                    {
                         icon: 'el-icon-s-order',
                         index: 'order',
                         title: '订单管理'

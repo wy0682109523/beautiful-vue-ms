@@ -63,6 +63,9 @@
                                     <el-button type="primary" @click="popLotUpdateDialog(scope.$index, scope.row)">
                                         修改
                                     </el-button>
+                                    <el-button type="success" @click="addCart(scope.$index, scope.row)">
+                                        添加到购物车
+                                    </el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -257,6 +260,7 @@
 <script>
     import { addGoods, deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/GoodsApi';
     import { addLot, updateLot } from '../../api/LotApi';
+    import { addCart } from '../../api/CartApi';
 
     export default {
         name: 'goods',
@@ -276,6 +280,7 @@
                 updateGoodsParam: {},
                 updateLotParam: {},
                 addLotParam: {},
+                addCartParam: {},
                 goodsList: [],
                 multipleSelection: [],
                 totalSize: 0,
@@ -485,6 +490,22 @@
                 });
 
                 this.updateLotDialogVisible = false;
+            },
+            //添加购物车
+            addCart(index, row) {
+
+                this.addCartParam = {
+                    staffId: '1',
+                    goodsId: row.goodsId,
+                    lotId: row.lotId,
+                    quantity: 1
+                };
+
+                addCart(this.addCartParam).then(() => {
+                    this.$message.success('添加成功');
+                }).catch(() => {
+                    this.$message.error('添加失败');
+                });
             }
         }
     };
