@@ -14,18 +14,17 @@
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="popupOrderCreateDialog">
-                    创建订单
-                </el-button>
-                <el-input v-model="query.orderId" placeholder="订单ID" class="handle-input mr10"></el-input>
+
+                <el-input v-model="query.orderId" placeholder="订单ID" class="handle-input mr10" clearable></el-input>
                 <el-select v-model="query.paymentMethod" placeholder="请选择支付方式" clearable>
                     <el-option
-                            v-for="item in selectOptions"
+                            v-for="item in paymentMethodList"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
                     </el-option>
                 </el-select>
+
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
                 </el-button>
             </div>
@@ -44,16 +43,29 @@
                 <el-table-column prop="orderId" label="订单ID" align="center"></el-table-column>
                 <el-table-column label="商品信息" align="center">
                     <template slot-scope="scope">
-                        <div v-for="(item,index) in scope.row.orderGoodsList" :key="index">名称：{{item.goodsName}}
-                            数量：{{item.goodsQuantity}}
+                        <div v-for="(item,index) in scope.row.orderGoodsList" :key="index">{{item.goodsName}} x
+                            {{item.goodsQuantity}}
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column label="订单金额" align="center">
                     <template slot-scope="scope">￥ {{scope.row.orderAmount}}</template>
                 </el-table-column>
+                <el-table-column label="优惠金额" align="center">
+                    <template slot-scope="scope">￥ {{scope.row.discountAmount}}</template>
+                </el-table-column>
+                <el-table-column label="应付金额" align="center">
+                    <template slot-scope="scope">￥ {{scope.row.cashAmount}}</template>
+                </el-table-column>
+                <el-table-column label="实付金额" align="center">
+                    <template slot-scope="scope">￥ {{scope.row.actualAmount}}</template>
+                </el-table-column>
 
-                <el-table-column prop="paymentMethod" label="支付方式" align="center"></el-table-column>
+                <el-table-column prop="paymentMethod" label="支付方式" align="center"
+                                 :formatter="formatPaymentMethod"></el-table-column>
+                <el-table-column prop="orderStatus" label="订单状态" align="center"
+                                 :formatter="formatOrderStatus"></el-table-column>
+                <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                 <el-table-column prop="orderTime" label="下单时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center" fixed="right">
                     <template slot-scope="scope">
@@ -73,26 +85,12 @@
                 ></el-pagination>
             </div>
 
-            <el-dialog title="创建订单" :visible.sync="createOrderDialogVisible" width="30%">
-                <el-form ref="orderCreateParam" :model="orderCreateParam" label-width="90px" label-position="left">
-                    <el-form-item label="订单金额" prop="orderAmount">
-                        <el-input v-model="orderCreateParam.orderAmount" clearable></el-input>
-                    </el-form-item>
-                    <el-form-item label="订单金额" prop="orderAmount">
-                        <el-input v-model="orderCreateParam.orderAmount" clearable></el-input>
-                    </el-form-item>
-                </el-form>
-                <span slot="footer" class="dialog-footer">
-                <el-button @click="cancelOrderCreateDialog('orderCreateParam')">取 消</el-button>
-                <el-button type="primary" @click="saveOrderCreateData('orderCreateParam')">确 定</el-button>
-            </span>
-            </el-dialog>
         </div>
     </div>
 </template>
 
 <script>
-    import { createOrder, deleteOrder, deleteOrderList, getOrderList } from '../../api/OrderApi';
+    import { deleteOrder, deleteOrderList, getOrderList } from '../../api/OrderApi';
 
     export default {
         name: 'order',
@@ -104,27 +102,45 @@
                     offset: 1,
                     limit: 10
                 },
-                deleteParam: {
-                    orderId: null
-                },
-                deleteListParam: {
-                    orderIdList: []
-                },
                 orderList: [],
-                orderCreateParam: {},
                 multipleSelection: [],
                 totalSize: 0,
-                createOrderDialogVisible: false,
-                selectOptions: [
+                paymentMethodList: [
                     {
-                        value: '1',
+                        value: 1,
                         label: '现金'
                     }, {
-                        value: '2',
+                        value: 2,
                         label: '微信'
                     }, {
-                        value: '3',
+                        value: 3,
                         label: '支付宝'
+                    }],
+                orderStatusList: [
+                    {
+                        value: 1,
+                        label: '待支付'
+                    }, {
+                        value: 2,
+                        label: '支付中'
+                    }, {
+                        value: 3,
+                        label: '已支付'
+                    }, {
+                        value: 4,
+                        label: '待发货'
+                    }, {
+                        value: 5,
+                        label: '待收货'
+                    }, {
+                        value: 6,
+                        label: '已拒收'
+                    }, {
+                        value: 7,
+                        label: '已取消'
+                    }, {
+                        value: 8,
+                        label: '已完成'
                     }]
             };
         },
@@ -132,11 +148,12 @@
             this.getOrderData();
         },
         methods: {
-            // 获取员工列表
+            // 获取订单列表
             getOrderData() {
                 getOrderList(this.query).then(response => {
                     this.orderList = response.result.orderList;
                     this.totalSize = response.result.totalSize;
+                    console.log(response);
                 }).catch(() => {
                     this.$message.error('查询失败');
                 });
@@ -149,67 +166,53 @@
             // 删除操作
             handleDelete(index, row) {
                 // 二次确认删除
-                this.$confirm('确定要删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
-                        this.deleteParam.orderId = row.orderId;
+                this.$confirm('确定要删除吗？', '提示', { type: 'warning' }).then(() => {
+                    let deleteParam = { orderId: row.orderId };
 
-                        deleteOrder(this.deleteParam);
-                        //表单伪刷新或者重新拉取数据
-                        this.orderList.splice(index, 1);
-
-                        this.$set(this, 'totalSize', --this.totalSize);
-
+                    deleteOrder(deleteParam).then(() => {
                         this.$message.success('删除成功');
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
+                    }).catch(() => {
+                        this.$message.error('删除成功');
                     });
+
+                    //表单伪刷新或者重新拉取数据
+                    this.orderList.splice(index, 1);
+
+                    this.$set(this, 'totalSize', --this.totalSize);
+
+
+                }).catch(() => {
+                    this.$message({ showClose: true, message: '删除失败', type: 'error' });
+                });
             },
             // 多选操作
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
             delAllSelection() {
-
                 // 二次确认删除
-                this.$confirm('确定要全部删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
+                this.$confirm('确定要全部删除吗？', '提示', { type: 'warning' }).then(() => {
+                    //清空删除参数
+                    let deleteListParam = { orderIdList: [] };
 
-                        //清空删除参数
-                        this.deleteListParam.orderIdList = [];
-
-                        this.multipleSelection.map((item, index) => {
-                            this.deleteListParam.orderIdList.push(item.orderId);
-                        });
-
-                        deleteOrderList(this.deleteListParam).then(() => {
-
-                            //删除之后再刷新页面
-                            this.$message.success(`删除成功`);
-
-                            this.$set(this.query, 'offset', this.getJumpPage(this.deleteListParam.orderIdList.length));
-
-                            this.getOrderData();
-                        });
-
-                        //清空选择项
-                        this.multipleSelection = [];
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
+                    this.multipleSelection.map((item, index) => {
+                        deleteListParam.orderIdList.push(item.orderId);
                     });
+
+                    deleteOrderList(deleteListParam).then(() => {
+                        //删除之后再刷新页面
+                        this.$message.success(`删除成功`);
+
+                        this.$set(this.query, 'offset', this.getJumpPage(deleteListParam.orderIdList.length));
+
+                        this.getOrderData();
+                    });
+
+                    //清空选择项
+                    this.multipleSelection = [];
+                }).catch(() => {
+                    this.$message({ showClose: true, message: '删除失败', type: 'error' });
+                });
             },
             // 分页导航
             handlePageChange(val) {
@@ -220,30 +223,19 @@
             getJumpPage(deleteCount) {
                 return Math.ceil((this.totalSize - deleteCount) / this.query.limit);
             },
-            popupOrderCreateDialog() {
-                this.createOrderDialogVisible = true;
-            },
-            cancelOrderCreateDialog(formName) {
-                this.createOrderDialogVisible = false;
-                this.$refs[formName].clearValidate();
-            },
-            saveOrderCreateData(formName) {
-                this.$refs[formName].validate((valid) => {
-                    if (valid) {
-                        this.createOrderDialogVisible = false;
-                        createOrder(this.orderCreateParam).then((response) => {
-                            this.$message({
-                                showClose: true,
-                                message: '订单创建成功',
-                                type: 'success'
-                            });
-                        }).catch((response) => {
-                            this.$message.error(`订单创建失败，失败原因：` + response.message);
-                        });
-                    } else {
-                        return false;
+            formatPaymentMethod(row, column) {
+                for (let element of this.paymentMethodList) {
+                    if (row.paymentMethod === element.value) {
+                        return element.label;
                     }
-                });
+                }
+            },
+            formatOrderStatus(row, column) {
+                for (let element of this.orderStatusList) {
+                    if (row.orderStatus === element.value) {
+                        return element.label;
+                    }
+                }
             }
         }
     };
