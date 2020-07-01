@@ -30,16 +30,16 @@ export const updateSystem = query => {
 //删除系统配置
 export const deleteSystem = query => {
     return request({
-        url: 'v1/system/getSystemList',
+        url: 'v1/system/deleteSystem',
         method: 'post',
         data: query
     });
 };
 
-//删除系统配置
+//删除系统配置列表
 export const deleteSystemList = query => {
     return request({
-        url: 'v1/system/getSystemList',
+        url: 'v1/system/deleteSystemList',
         method: 'post',
         data: query
     });

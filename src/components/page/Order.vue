@@ -41,10 +41,24 @@
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="orderId" label="订单ID" align="center"></el-table-column>
-                <el-table-column label="商品信息" align="center">
+                <el-table-column label="商品信息" width="350" align="center">
                     <template slot-scope="scope">
-                        <div v-for="(item,index) in scope.row.orderGoodsList" :key="index">{{item.goodsName}} x
-                            {{item.goodsQuantity}}
+                        <div v-for="(item,index) in scope.row.orderGoodsList" :key="index" style="text-align:center">
+                            <el-row type="flex" class="row-bg" justify="center" align="middle" :gutter="1">
+                                <el-col :span="1">
+                                    <el-image
+                                            style="width: 50px; height: 50px"
+                                            :src="item.imgUrl" fit="fill">
+                                        <div slot="error" class="image-slot"
+                                             style="margin-top: 45px;width: 100px;height: 100px;">
+                                            <i class="el-icon-picture-outline"></i>
+                                        </div>
+                                    </el-image>
+                                </el-col>
+                                <el-col :span="20" :offset="2"><span>{{item.goodsName}} x {{item.goodsQuantity}}</span>
+                                </el-col>
+                            </el-row>
+                            <hr style="border: none;background-color: #e6e6e6;height: 1px;">
                         </div>
                     </template>
                 </el-table-column>

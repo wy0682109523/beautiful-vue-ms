@@ -33,6 +33,18 @@
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
                     <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
                     <el-table-column prop="lotId" label="批次ID" align="center"></el-table-column>
+                    <el-table-column label="商品图片" align="center">
+                        <template slot-scope="scope">
+                            <el-image
+                                    style="width: 100px; height: 100px"
+                                    :src="scope.row.imgUrl" fit="fill">
+                                <div slot="error" class="image-slot"
+                                     style="margin-top: 45px;width: 100px;height: 100px;">
+                                    <i class="el-icon-picture-outline"></i>
+                                </div>
+                            </el-image>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                     <el-table-column prop="unitPrice" label="商品单价" align="center"></el-table-column>
                     <el-table-column label="数量" align="center">
@@ -75,7 +87,7 @@
                 </el-col>
             </el-row>
 
-            <!--确认支付-->
+            <!--确认订单-->
             <el-dialog title="确认订单" :visible.sync="confirmPayDialogVisible" width="30%" center>
 
                 <el-table
@@ -89,6 +101,18 @@
 
                     <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
                     <el-table-column prop="lotId" label="批次ID" align="center"></el-table-column>
+                    <el-table-column label="商品图片" align="center">
+                        <template slot-scope="scope">
+                            <el-image
+                                    style="width: 50px; height: 50px"
+                                    :src="scope.row.imgUrl" fit="fill">
+                                <div slot="error" class="image-slot"
+                                     style="margin-top: 45px;width: 100px;height: 100px;">
+                                    <i class="el-icon-picture-outline"></i>
+                                </div>
+                            </el-image>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                     <el-table-column prop="unitPrice" label="单价 x 数量" align="center">
                         <template slot-scope="scope">
@@ -103,7 +127,7 @@
                     </el-table-column>
 
                 </el-table>
-
+                <br>
                 <diV>商品件数：<span style="color: red">{{this.totalCount}}</span> 件</diV>
                 <br>
                 <diV>商品总价：<span style="color: red">{{this.totalAmount}}</span> 元</diV>

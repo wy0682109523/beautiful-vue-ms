@@ -46,6 +46,19 @@
                                 trigger="hover">
                             <el-table :data="cartList" :show-header="false"
                             >
+                                <el-table-column>
+                                    <template slot-scope="scope">
+                                        <el-image
+                                                style="width: 50px; height: 50px"
+                                                :src="scope.row.imgUrl" fit="fill">
+                                            <div slot="error" class="image-slot"
+                                                 style="margin-top: 45px;width: 100px;height: 100px;">
+                                                <i class="el-icon-picture-outline"></i>
+                                            </div>
+                                        </el-image>
+                                    </template>
+
+                                </el-table-column>
                                 <el-table-column property="goodsName"></el-table-column>
                                 <el-table-column align="center">
                                     <template slot-scope="scope">
@@ -199,7 +212,9 @@
                                 :on-preview="handlePictureCardPreview"
                                 :on-change="handleChange"
                                 :on-remove="handleRemove"
+                                :on-success="handleSuccess"
                                 :class="{hide:hideUpload}"
+                                :auto-upload="true"
                         >
                             <i class="el-icon-upload"></i>
                             <span class="el-upload__text">将文件拖到此处，或<em>点击上传</em></span>
@@ -376,6 +391,7 @@
                 imgDialogVisible: false,
                 dialogImageUrl: '',
                 hideUpload: false,
+                imgUrl: null,
                 //日期选择
                 pickerOptions: {
                     disabledDate(time) {
@@ -522,6 +538,8 @@
                 this.$refs[formName].clearValidate();
             },
             saveGoodsAddData(formName) {
+                this.addParam['imgUrl'] = this.imgUrl;
+
                 addGoods(this.addParam).then(() => {
                     this.$message.success('添加成功');
                     //注意：解决列表偶尔不刷新问题：将刷新操作放到响应函数中。原因：刷新操作比插入操作快，还没插入就查出数据了，导致列表不刷新
@@ -642,6 +660,9 @@
             handleRemove(file, fileList) {
                 this.hideUpload = fileList.length === 1;
                 console.log(this.hideUpload);
+            },
+            handleSuccess(response, file, fileList) {
+                this.imgUrl = response.result.imgUrl;
             }
         }
     };

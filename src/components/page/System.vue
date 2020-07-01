@@ -37,7 +37,7 @@
                             <el-checkbox-group v-model="warnTypeList" style="display: inline" @change="handleCheckBox">
                                 <el-checkbox label="1">站内消息</el-checkbox>
                                 <el-checkbox label="2">邮件消息</el-checkbox>
-                                <el-checkbox label="3" disabled >短信消息</el-checkbox>
+                                <el-checkbox label="3" disabled>短信消息</el-checkbox>
                             </el-checkbox-group>
 
                         </template>
@@ -139,12 +139,6 @@
                     offset: 1,
                     limit: 10
                 },
-                deleteParam: {
-                    systemKey: null
-                },
-                deleteListParam: {
-                    systemKeyList: []
-                },
                 addParam: {},
                 updateParam: {},
                 systemList: [],
@@ -168,15 +162,18 @@
                     console.log(response);
                     this.systemList = response.result.systemList;
                     this.totalSize = response.result.totalSize;
+
                     //自动展开选项
                     for (let index in this.systemList) {
-                        if (this.sckKey === this.systemList[index].systemKey) {
-                            let value = this.systemList[index].systemValue;
-                            if (value.length !== 0) {
-                                let warnTypeList = value.split(',');
-                                if (warnTypeList.length !== 0) {
-                                    this.warnTypeList = warnTypeList;
-                                    this.warnTypeOnOff = true;
+                        if (this.systemList.hasOwnProperty(index)) {
+                            if (this.sckKey === this.systemList[index].systemKey) {
+                                let value = this.systemList[index].systemValue;
+                                if (value.length !== 0) {
+                                    let warnTypeList = value.split(',');
+                                    if (warnTypeList.length !== 0) {
+                                        this.warnTypeList = warnTypeList;
+                                        this.warnTypeOnOff = true;
+                                    }
                                 }
                             }
                         }
@@ -191,67 +188,56 @@
             // 删除操作
             handleDelete(index, row) {
                 // 二次确认删除
-                this.$confirm('确定要删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
-                        this.deleteParam.goodsId = row.goodsId;
+                this.$confirm('确定要删除吗？', '提示', { type: 'warning' }).then(() => {
 
-                        deleteSystem(this.deleteParam);
+                    let deleteParam = { systemKey: row.systemKey };
+
+                    deleteSystem(deleteParam).then(() => {
                         //表单伪刷新或者重新拉取数据
                         this.systemList.splice(index, 1);
 
                         this.$set(this, 'totalSize', --this.totalSize);
 
                         this.$message.success('删除成功');
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
+                    }).catch(() => {
+                        this.$message.error('删除失败');
                     });
+
+                }).catch(() => {
+                    this.$message({ showClose: true, message: '删除失败', type: 'error' });
+                });
             },
             // 多选操作
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
             delAllSelection() {
-
                 // 二次确认删除
-                this.$confirm('确定要全部删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
+                this.$confirm('确定要全部删除吗？', '提示', { type: 'warning' }).then(() => {
+                    //清空删除参数
+                    let deleteListParam = { systemKeyList: [] };
 
-                        //清空删除参数
-                        this.deleteListParam.goodsIdList = [];
-
-                        this.multipleSelection.map((item, index) => {
-                            this.deleteListParam.goodsIdList.push(item.goodsId);
-                        });
-
-                        deleteSystemList(this.deleteListParam).then(() => {
-
-                            //删除之后再刷新页面
-                            this.$message.success(`删除成功`);
-
-                            this.$set(this.queryParam, 'offset', this.getJumpPage(this.deleteListParam.goodsIdList.length));
-
-                            this.getSystemData();
-                        });
-
-                        //清空选择项
-                        this.multipleSelection = [];
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
+                    this.multipleSelection.map((item, index) => {
+                        deleteListParam.systemKeyList.push(item.systemKey);
                     });
+
+                    deleteSystemList(deleteListParam).then(() => {
+
+                        //删除之后再刷新页面
+                        this.$message.success(`删除成功`);
+
+                        this.$set(this.queryParam, 'offset', this.getJumpPage(deleteListParam.systemKeyList.length));
+
+                        this.getSystemData();
+                    }).catch(() => {
+                        this.$message.error('删除失败');
+                    });
+
+                    //清空选择项
+                    this.multipleSelection = [];
+                }).catch(() => {
+                    this.$message({ showClose: true, message: '删除失败', type: 'error' });
+                });
             },
             // 分页导航
             handlePageChange(val) {
@@ -316,7 +302,9 @@
 
                 updateSystem(this.updateParam).then(() => {
                     this.$message.success('更新成功');
+
                     this.$set(this.queryParam, 'offset', 1);
+
                     this.getSystemData();
                 }).catch(() => {
                     this.$message.error('更新失败');
@@ -332,7 +320,9 @@
 
                 updateSystem(this.updateParam).then(() => {
                     this.$message.success('更新成功');
+
                     this.$set(this.queryParam, 'offset', 1);
+
                     this.getSystemData();
                 }).catch(() => {
                     this.$message.error('更新失败');
