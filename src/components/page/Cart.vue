@@ -164,9 +164,7 @@
 
             return {
                 query: {
-                    staffId: '1',
-                    offset: 1,
-                    limit: 10
+                    staffId: '1'
                 },
                 createOrderParam: { discountAmount: 0, cashAmount: 0 },
                 cartList: [],

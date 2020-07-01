@@ -13,17 +13,67 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
-                </el-button>
-                <el-button type="success"
-                           icon="el-icon-plus"
-                           class="handle-del mr10"
-                           @click="popGoodsAddDialog('addParam')">添加商品
-                </el-button>
-                <el-input v-model="queryParam.goodsId" placeholder="请输入商品ID" class="handle-input mr10"></el-input>
-                <el-input v-model="queryParam.goodsName" placeholder="请输入商品名称" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
-                </el-button>
+                <el-row type="flex" justify="center" :gutter="2">
+                    <el-col :span="2">
+                        <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">
+                            批量删除
+                        </el-button>
+                    </el-col>
+                    <el-col :span="2">
+                        <el-button type="success"
+                                   icon="el-icon-plus"
+                                   class="handle-del mr10"
+                                   @click="popGoodsAddDialog('addParam')">添加商品
+                        </el-button>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-input v-model="queryParam.goodsId" placeholder="请输入商品ID"
+                                  class="handle-input mr10"></el-input>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-input v-model="queryParam.goodsName" placeholder="请输入商品名称"
+                                  class="handle-input mr10"></el-input>
+                    </el-col>
+                    <el-col :span="2">
+                        <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">
+                            查询
+                        </el-button>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-popover
+                                placement="top-start"
+                                width="250"
+                                trigger="hover">
+                            <el-table :data="cartList" :show-header="false"
+                            >
+                                <el-table-column property="goodsName"></el-table-column>
+                                <el-table-column align="center">
+                                    <template slot-scope="scope">
+                                        <span> {{scope.row.unitPrice}}元 x {{scope.row.quantity}}</span>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <br>
+                            <el-row type="flex" justify="center" :gutter="2">
+                                <el-col>
+                                    <div>
+                                        <div>共 {{totalCount}} 件商品</div>
+                                        <div style="color:#FF6700">{{totalAmount}}元</div>
+                                    </div>
+                                </el-col>
+                                <el-col>
+                                    <router-link to="/cart">
+                                        <el-button style="background-color:#FF6700;color: white">去购物车结算</el-button>
+                                    </router-link>
+                                </el-col>
+                            </el-row>
+                            <el-button slot="reference" icon="el-icon-shopping-cart-full"
+                                       style="background-color:#FF6700;color: white">购物车（{{totalCount}}）
+                            </el-button>
+                        </el-popover>
+                    </el-col>
+                </el-row>
+
             </div>
 
             <!--列表部分-->
@@ -74,8 +124,17 @@
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
-
-
+                <el-table-column label="商品图片" align="center">
+                    <template slot-scope="scope">
+                        <el-image
+                                style="width: 100px; height: 100px"
+                                :src="scope.row.imgUrl" fit="fill">
+                            <div slot="error" class="image-slot" style="margin-top: 45px;width: 100px;height: 100px;">
+                                <i class="el-icon-picture-outline"></i>
+                            </div>
+                        </el-image>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
                 <!-- 操作栏-->
@@ -126,6 +185,29 @@
                          label-position="left">
                     <el-form-item label="商品名称" prop="goodsName">
                         <el-input v-model="addParam.goodsName" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品图片" prop="goodsImg">
+                        <el-upload
+                                class="upload-demo"
+                                list-type="picture-card"
+                                drag
+                                accept="image/*"
+                                action="v1/file/upload/goods"
+                                :show-file-list="true"
+                                :multiple="false"
+                                :limit="1"
+                                :on-preview="handlePictureCardPreview"
+                                :on-change="handleChange"
+                                :on-remove="handleRemove"
+                                :class="{hide:hideUpload}"
+                        >
+                            <i class="el-icon-upload"></i>
+                            <span class="el-upload__text">将文件拖到此处，或<em>点击上传</em></span>
+                            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+                        </el-upload>
+                        <el-dialog :visible.sync="imgDialogVisible">
+                            <img width="100%" :src="dialogImageUrl" alt="">
+                        </el-dialog>
                     </el-form-item>
                     <el-form-item label="库存数量" prop="goodsQuantity">
                         <el-input v-model="addParam.goodsQuantity" clearable></el-input>
@@ -260,7 +342,7 @@
 <script>
     import { addGoods, deleteGoods, deleteGoodsList, getGoodsList, updateGoods } from '../../api/GoodsApi';
     import { addLot, updateLot } from '../../api/LotApi';
-    import { addCart } from '../../api/CartApi';
+    import { addCart, getCartList } from '../../api/CartApi';
 
     export default {
         name: 'goods',
@@ -282,12 +364,18 @@
                 addLotParam: {},
                 addCartParam: {},
                 goodsList: [],
+                cartList: [],
                 multipleSelection: [],
                 totalSize: 0,
+                totalAmount: 0,
+                totalCount: 0,
                 updateGoodsDialogVisible: false,
                 addGoodsDialogVisible: false,
                 addLotDialogVisible: false,
                 updateLotDialogVisible: false,
+                imgDialogVisible: false,
+                dialogImageUrl: '',
+                hideUpload: false,
                 //日期选择
                 pickerOptions: {
                     disabledDate(time) {
@@ -319,15 +407,32 @@
         //初始化
         created() {
             this.getGoodsData();
+            this.getCartDate();
         },
         methods: {
+            //获取购物车列表
+            getCartDate() {
+                let query = {
+                    staffId: '1'
+                };
+
+                getCartList(query).then(response => {
+                    this.cartList = response.result.cartList;
+
+                    this.calculateTotalCount();
+                    this.calculateTotalAmount();
+
+                }).catch(() => {
+                    this.$message.error('购物车查询失败');
+                });
+            },
             // 获取库存列表
             getGoodsData() {
                 getGoodsList(this.queryParam).then(response => {
                     this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
                 }).catch(() => {
-                    this.$message.error('查询失败');
+                    this.$message.error('商品查询失败');
                 });
             },
             //搜索按钮
@@ -503,15 +608,46 @@
 
                 addCart(this.addCartParam).then(() => {
                     this.$message.success('添加成功');
+                    this.getCartDate();
                 }).catch(() => {
                     this.$message.error('添加失败');
                 });
+            },
+            calculateTotalCount() {
+                this.totalCount = 0;
+
+                for (let index in this.cartList) {
+                    if (this.cartList.hasOwnProperty(index)) {
+                        this.totalCount += this.cartList[index].quantity;
+                    }
+                }
+            },
+            calculateTotalAmount() {
+                this.totalAmount = 0;
+
+                for (let index in this.cartList) {
+                    if (this.cartList.hasOwnProperty(index)) {
+                        this.totalAmount += this.cartList[index].unitPrice * this.cartList[index].quantity;
+                    }
+                }
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.imgDialogVisible = true;
+            },
+            handleChange(file, fileList) {
+                this.hideUpload = fileList.length === 1;
+                console.log(this.hideUpload);
+            },
+            handleRemove(file, fileList) {
+                this.hideUpload = fileList.length === 1;
+                console.log(this.hideUpload);
             }
         }
     };
 </script>
 
-<style scoped>
+<style>
     .handle-box {
         margin-bottom: 20px;
     }
@@ -543,5 +679,18 @@
         margin: auto;
         width: 40px;
         height: 40px;
+    }
+
+    .hide .el-upload--picture-card {
+        display: none;
+    }
+
+    .el-upload-dragger {
+        width: 352px;
+        height: 148px;
+    }
+
+    .el-upload-dragger .el-upload__text {
+        margin-left: 2px;
     }
 </style>
