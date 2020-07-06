@@ -71,3 +71,12 @@ export const changePassword = query => {
         data: query
     });
 };
+
+//获取员工最新登录记录
+export const getLastLoginRecord = query => {
+    return request({
+        url: 'v1/staff/getLastLoginRecord',
+        method: 'post',
+        data: query
+    });
+};
