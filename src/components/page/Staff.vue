@@ -48,8 +48,8 @@
                 <el-table-column label="员工姓名" align="center" sortable>
                     <template slot-scope="scope">
                         <el-popover trigger="hover" placement="top">
-                            <p>员工Id: {{ scope.row.staffId }}</p>
-                            <p>员工姓名: {{ scope.row.staffName }}</p>
+                            <p>编号: {{ scope.row.staffId }}</p>
+                            <p>姓名: {{ scope.row.staffName }}</p>
                             <div slot="reference" class="name-wrapper">
                                 <el-tag size="medium">{{ scope.row.staffName }}</el-tag>
                             </div>
@@ -336,6 +336,7 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         addStaff(this.addParam).then(() => {
+                            this.getStaffData();
                             this.$message.success(`添加成功`);
                             this.dialogAddVisible = false;
                         }).catch(() => {

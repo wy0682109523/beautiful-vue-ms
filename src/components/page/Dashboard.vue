@@ -8,6 +8,8 @@
                         <div class="user-info-cont">
                             <div class="user-info-name">{{username}}</div>
                             <br>
+                            <div class="user-info-name">{{staffInfo.staffName}}</div>
+                            <br>
                             <div>{{staffInfo.adminFlag===1?'管理员':'普通员工'}}</div>
                         </div>
                     </div>
