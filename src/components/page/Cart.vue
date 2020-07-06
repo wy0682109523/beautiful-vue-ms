@@ -176,11 +176,19 @@
         name: 'cart',
         data() {
 
-            let validateAmount = (rule, value, callback) => {
+            let validateActualAmount = (rule, value, callback) => {
                 const regExp = /^(([\d]{1,8})|([\d]{1,8}\.[\d]{1,2}))$/;
 
                 if (!regExp.test(value)) {
                     callback(new Error('请输入正确金额'));
+                } else {
+                    callback();
+                }
+            };
+
+            let validateDiscountAmount = (rule, value, callback) => {
+                if (value > this.totalAmount) {
+                    callback(new Error('优惠金额不能大于总金额'));
                 } else {
                     callback();
                 }
@@ -208,9 +216,10 @@
                         label: '支付宝'
                     }],
                 rules: {
+                    discountAmount: [{ validator: validateDiscountAmount, trigger: ['change', 'blur'] }],
                     actualAmount: [
                         { required: true, message: '请手动输入实付金额', trigger: 'blur' },
-                        { validator: validateAmount, trigger: ['change', 'blur'] }
+                        { validator: validateActualAmount, trigger: ['change', 'blur'] }
                     ],
                     paymentMethod: [
                         { required: true, message: '请选择支付方式', trigger: ['change', 'blur'] }
@@ -328,7 +337,9 @@
                 }
             },
             calculateCashAmount(discountAmount) {
-                this.createOrderParam.cashAmount = this.totalAmount - discountAmount;
+                this.createOrderParam.cashAmount = 0;
+
+                this.createOrderParam.cashAmount = (this.totalAmount - discountAmount) >= 0 ? (this.totalAmount - discountAmount) : 0;
             },
             PopCreateOrderDialog() {
                 if (this.multipleSelection.length === 0) {
@@ -337,6 +348,10 @@
                 }
 
                 this.confirmPayDialogVisible = true;
+
+                //初始化结算金额
+                this.createOrderParam.cashAmount = this.totalAmount;
+
                 //每次弹出结算页面，重新计算商品件数
                 this.calculateTotalCount();
             },

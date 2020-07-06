@@ -7,6 +7,7 @@
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
+        <!-- 搜索部分-->
         <div class="container">
             <div class="handle-box">
                 <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
@@ -14,25 +15,36 @@
                 <el-button type="primary" icon="el-icon-circle-plus" class="handle-del mr10" @click="popupStaffForm">
                     新增
                 </el-button>
-                <el-select v-model="query.adminFlag" placeholder="管理员" class="handle-select mr10">
+                <el-input v-model="query.username" placeholder="用户名" class="handle-input mr10"></el-input>
+                <el-input v-model="query.staffName" placeholder="姓名" class="handle-input mr10"></el-input>
+                <el-input v-model="query.phone" placeholder="手机号" class="handle-input mr10"></el-input>
+                <el-select v-model="query.adminFlag" placeholder="管理员" class="handle-select mr10" clearable>
                     <el-option key="1" label="管理员" value="1"></el-option>
                     <el-option key="2" label="非管理员" value="0"></el-option>
                 </el-select>
-                <el-input v-model="query.staffName" placeholder="用户名" class="handle-input mr10"></el-input>
-                <el-input v-model="query.sex" placeholder="性别" class="handle-input mr10"></el-input>
+                <el-select v-model="query.status" placeholder="在职状态" class="handle-select mr10" clearable>
+                    <el-option key="1" label="在职" value="1"></el-option>
+                    <el-option key="2" label="离职" value="0"></el-option>
+                </el-select>
+                <el-select v-model="query.sex" placeholder="性别" class="handle-select mr10" clearable>
+                    <el-option key="1" label="女" value="0"></el-option>
+                    <el-option key="2" label="男" value="1"></el-option>
+                </el-select>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+                <el-button type="primary" icon="el-icon-search" @click="restoreSearch">重置</el-button>
             </div>
+            <!-- 表单部分-->
             <el-table
-                    :data="tableData"
+                    :data="staffList"
                     border
                     stripe
                     class="table"
                     ref="multipleTable"
                     header-cell-class-name="table-header"
-                    @selection-change="handleSelectionChange"
-            >
+                    @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="staffId" label="员工ID" align="center"></el-table-column>
+                <el-table-column prop="username" label="用户名" align="center"></el-table-column>
                 <el-table-column label="员工姓名" align="center" sortable>
                     <template slot-scope="scope">
                         <el-popover trigger="hover" placement="top">
@@ -50,18 +62,15 @@
                 </el-table-column>
                 <el-table-column label="员工头像" align="center">
                     <template slot-scope="scope">
-                        <!--                        <el-image-->
-                        <!--                                class="table-td-thumb"-->
-                        <!--                                :src="scope.row.thumb"-->
-                        <!--                                :preview-src-list="[scope.row.thumb]"-->
-                        <!--                        ></el-image>-->
-                        <el-avatar icon="el-icon-user-solid"
-                                   src="http://192.168.31.238:8081/static/img/img.146655c9.jpg"></el-avatar>
+                        <el-avatar icon="el-icon-user-solid" :src="scope.row.avatarImg"></el-avatar>
                     </template>
                 </el-table-column>
+                <el-table-column prop="status" label="在职状态" align="center" :formatter="statusFormat"></el-table-column>
+                <el-table-column prop="adminFlag" label="管理员标识" align="center"
+                                 :formatter="adminFormat"></el-table-column>
                 <el-table-column prop="phone" label="手机号" align="center"></el-table-column>
-                <el-table-column prop="adminFlag" label="管理员标识" align="center"></el-table-column>
-
+                <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+                <el-table-column prop="address" label="地址" align="center"></el-table-column>
                 <el-table-column prop="createTime" label="注册时间" align="center" sortable></el-table-column>
                 <el-table-column label="操作" width="180" align="center" fixed="right">
                     <template slot-scope="scope">
@@ -77,6 +86,7 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <!--分栏部分-->
             <div class="pagination">
                 <el-pagination
                         background
@@ -88,103 +98,122 @@
                 ></el-pagination>
             </div>
         </div>
-
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
-            <el-form ref="form" :model="update" label-width="70px">
+        <el-dialog title="修改" :visible.sync="dialogUpdateVisible" width="30%">
+            <el-form ref="updateParam" :model="updateParam" label-width="70px">
                 <el-form-item label="员工姓名">
-                    <el-input v-model="update.staffName" clearable></el-input>
+                    <el-input v-model="updateParam.staffName" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="手机号">
-                    <el-input v-model="update.phone" clearable></el-input>
+                    <el-input v-model="updateParam.phone" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="员工性别">
                     <template>
-                        <el-radio v-model="update.sex" label="1">男</el-radio>
-                        <el-radio v-model="update.sex" label="0">女</el-radio>
+                        <el-radio v-model="updateParam.sex" label="1">男</el-radio>
+                        <el-radio v-model="updateParam.sex" label="0">女</el-radio>
                     </template>
-                </el-form-item>
-                <el-form-item label="员工年龄">
-                    <el-input v-model="update.age" clearable></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button @click="dialogUpdateVisible = false">取 消</el-button>
                 <el-button type="primary" @click="saveEdit">确 定</el-button>
             </span>
         </el-dialog>
-
         <!-- 新增弹出框 -->
-        <el-dialog title="新增员工" :visible.sync="dialogAddVisible" width="30%">
-            <el-form ref="add" :model="add" label-width="90px" label-position="left" :rules="rules">
+        <el-dialog title="新增员工" :visible.sync="dialogAddVisible" width="30%" center>
+            <el-form ref="addParam" :model="addParam" label-width="90px" label-position="left" :rules="rules">
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="addParam.username" clearable></el-input>
+                </el-form-item>
                 <el-form-item label="员工姓名" prop="staffName">
-                    <el-input v-model="add.staffName" clearable></el-input>
+                    <el-input v-model="addParam.staffName" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="员工性别">
                     <template>
-                        <el-radio v-model="add.sex" label="1">男</el-radio>
-                        <el-radio v-model="add.sex" label="0">女</el-radio>
+                        <el-radio v-model="addParam.sex" label="1">男</el-radio>
+                        <el-radio v-model="addParam.sex" label="0">女</el-radio>
                     </template>
                 </el-form-item>
-                <el-form-item label="员工年龄" prop="age">
-                    <el-input v-model.number="add.age" clearable></el-input>
-                </el-form-item>
                 <el-form-item label="手机号" prop="phone">
-                    <el-input v-model="add.phone" clearable></el-input>
+                    <el-input v-model="addParam.phone" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="addParam.email" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="地址" prop="address">
+                    <el-input v-model="addParam.address" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="生日" prop="birthday">
+                    <el-date-picker
+                            v-model="addParam.birthday"
+                            type="date"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                    </el-date-picker>
                 </el-form-item>
             </el-form>
+            <!-- 操作栏-->
             <span slot="footer" class="dialog-footer">
-                <el-button type="info" @click="resetStaffForm('add')">重置</el-button>
-                <el-button @click="cancelStaffForm('add')">取 消</el-button>
-                <el-button type="primary" @click="saveStaff('add')">确 定</el-button>
+                <el-button type="info" @click="resetStaffForm('addParam')">重置</el-button>
+                <el-button @click="cancelStaffForm('addParam')">取 消</el-button>
+                <el-button type="primary" @click="saveStaff('addParam')">确 定</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 
 <script>
-    import { addStaff, deleteStaff, deleteStaffList, getStaffList, updateStaff } from '../../api/StaffApi';
+    import { addStaff, deleteStaff, deleteStaffList, exist, getStaffList, updateStaff } from '../../api/StaffApi';
 
     export default {
-        name: 'basetable',
+        name: 'staff',
         data() {
+            let validateUsername = (rule, value, callback) => {
+                let existParam = {
+                    username: value
+                };
+
+                exist(existParam).then((response) => {
+                    if (response.result.exist) {
+                        callback(new Error('该用户名已存在'));
+                    } else {
+                        callback();
+                    }
+                }).catch(() => {
+                    callback(new Error('员工查询异常'));
+                });
+            };
+
             return {
                 query: {
-                    staffName: null,
-                    sex: null,
-                    adminFlag: null,
                     offset: 0,
-                    limit: 5
+                    limit: 10
                 },
-                update: {},
-                add: {},
-                delete: {},
-                deleteList: { staffIdList: [] },
-                tableData: [],
+                updateParam: {},
+                addParam: { sex: '1' },
+                staffList: [],
                 multipleSelection: [],
-                delList: [],
-                editVisible: false,
+                dialogUpdateVisible: false,
                 dialogAddVisible: false,
                 pageTotal: 0,
-                form: {},
-                idx: -1,
-                id: -1,
                 rules: {
+                    username: [{
+                        required: true,
+                        message: '请输入用户名，且与现有不重复',
+                        trigger: 'blur'
+                    }, {
+                        validator: validateUsername, trigger: 'blur'
+                    }
+                    ],
                     staffName: [
                         { required: true, message: '请输入员工姓名', trigger: 'blur' },
                         { min: 1, max: 25, message: '长度在 1 到 25 个字符', trigger: ['change', 'blur'] }
                     ],
-                    age: [{ required: false, message: '请输入年龄', trigger: 'blur' }, {
-                        type: 'number',
-                        pattern: '^[0-9]{1,3}$',
-                        message: '请输入正确年龄',
-                        trigger: ['change', 'blur']
-                    }],
                     phone: [
-                        { required: false, message: '请输入手机号', trigger: 'blur' },
+                        { required: true, message: '请输入手机号', trigger: ['change', 'blur'] },
                         {
-                            type: 'number',
-                            pattern: '/^1[345789][0-9]{9}$/',
+                            pattern: /^1[345789][0-9]{9}$/,
                             message: '请输入11位有效手机号码',
                             trigger: ['change', 'blur']
                         }
@@ -199,7 +228,7 @@
             // 获取员工列表
             getStaffData() {
                 getStaffList(this.query).then(res => {
-                    this.tableData = res.result.staffList;
+                    this.staffList = res.result.staffList;
                     this.pageTotal = res.result.totalSize;
                 }).catch(() => {
                     this.$message.error('查询失败');
@@ -210,53 +239,64 @@
                 this.$set(this.query, 'offset', 1);
                 this.getStaffData();
             },
+            restoreSearch() {
+                this.query = {
+                    offset: 0,
+                    limit: 10
+                };
+
+                this.handleSearch();
+            },
             // 删除操作
             handleDelete(index, row) {
                 // 二次确认删除
-                this.$confirm('确定要删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
+                this.$confirm('确定要删除吗？', '提示', { type: 'warning' }).then(() => {
+                    let deleteParam = { staffId: row.staffId };
+
+                    deleteStaff(deleteParam).then(() => {
                         this.$message.success('删除成功');
-                        this.delete = row;
-                        deleteStaff(this.delete);
-                        this.tableData.splice(index, 1);
-                    })
-                    .catch(() => {
+                        this.getStaffData();
+                    }).catch(() => {
+                        this.$message.error('删除失败');
                     });
+                });
             },
             // 多选操作
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
             delAllSelection() {
-                // const length = this.multipleSelection.length;
-                // let str = '';
-                // this.delList = this.delList.concat(this.multipleSelection);
-                //
-                // for (let i = 0; i < length; i++) {
-                //     str += this.multipleSelection[i].staffName + ' ';
-                // }
+                // 二次确认删除
+                this.$confirm('确定要全部删除吗？', '提示', { type: 'warning' }).then(() => {
+                    let deleteListParam = { staffIdList: [] };
 
-                this.multipleSelection.map((item, index) => {
-                    this.deleteList.staffIdList.push(item.staffId);
+                    this.multipleSelection.map((item, index) => {
+                        deleteListParam.staffIdList.push(item.staffId);
+                    });
+
+                    deleteStaffList(deleteListParam).then(() => {
+                        this.$message.success(`删除成功`);
+                        this.getStaffData();
+                    }).catch(() => {
+                        this.$message.error(`删除成功`);
+                    });
+
+                    this.multipleSelection = [];
                 });
-                deleteStaffList(this.deleteList);
-
-                this.multipleSelection = [];
-                this.$message.error(`删除成功`);
             },
             // 编辑操作
             handleEdit(index, row) {
-                this.idx = index;
-                this.update = row;
-                this.editVisible = true;
+                this.updateParam = row;
+                this.dialogUpdateVisible = true;
             },
             // 保存编辑
             saveEdit() {
-                this.editVisible = false;
-                this.$message.success(`修改第 ${this.idx + 1} 行成功`);
-                updateStaff(this.update);
+                updateStaff(this.updateParam).then(() => {
+                    this.$message.success(`更新成功`);
+                    this.dialogUpdateVisible = false;
+                }).catch(() => {
+                    this.$message.error(`更新失败`);
+                });
             },
             // 分页导航
             handlePageChange(val) {
@@ -273,12 +313,34 @@
                     return '未知';
                 }
             },
+            adminFormat(row, column) {
+                if (row.adminFlag === 0) {
+                    return '否';
+                } else if (row.adminFlag === 1) {
+                    return '是';
+                } else {
+                    return '';
+                }
+            },
+            statusFormat(row, column) {
+                if (row.status === 0) {
+                    return '离职';
+                } else if (row.status === 1) {
+                    return '在职';
+                } else {
+                    return '';
+                }
+            },
             //添加员工
             saveStaff(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.dialogAddVisible = false;
-                        addStaff(this.add);
+                        addStaff(this.addParam).then(() => {
+                            this.$message.success(`添加成功`);
+                            this.dialogAddVisible = false;
+                        }).catch(() => {
+                            this.$message.error(`添加失败`);
+                        });
                     } else {
                         return false;
                     }
