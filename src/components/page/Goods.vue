@@ -13,79 +13,64 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-row type="flex" justify="center" :gutter="2">
-                    <el-col :span="2">
-                        <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">
-                            批量删除
-                        </el-button>
-                    </el-col>
-                    <el-col :span="2">
-                        <el-button type="success"
-                                   icon="el-icon-plus"
-                                   class="handle-del mr10"
-                                   @click="popGoodsAddDialog('addParam')">添加商品
-                        </el-button>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="queryParam.goodsId" placeholder="请输入商品ID"
-                                  class="handle-input mr10"></el-input>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="queryParam.goodsName" placeholder="请输入商品名称"
-                                  class="handle-input mr10"></el-input>
-                    </el-col>
-                    <el-col :span="2">
-                        <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">
-                            查询
-                        </el-button>
-                    </el-col>
-                    <el-col :span="4">
-                        <el-popover
-                                placement="top-start"
-                                width="250"
-                                trigger="hover">
-                            <el-table :data="cartList" :show-header="false"
-                            >
-                                <el-table-column>
-                                    <template slot-scope="scope">
-                                        <el-image
-                                                style="width: 50px; height: 50px"
-                                                :src="scope.row.imgUrl" fit="fill">
-                                            <div slot="error" class="image-slot"
-                                                 style="margin-top: 45px;width: 100px;height: 100px;">
-                                                <i class="el-icon-picture-outline"></i>
-                                            </div>
-                                        </el-image>
-                                    </template>
-
-                                </el-table-column>
-                                <el-table-column property="goodsName"></el-table-column>
-                                <el-table-column align="center">
-                                    <template slot-scope="scope">
-                                        <span> {{scope.row.unitPrice}}元 x {{scope.row.quantity}}</span>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <br>
-                            <el-row type="flex" justify="center" :gutter="2">
-                                <el-col>
-                                    <div>
-                                        <div>共 {{totalCount}} 件商品</div>
-                                        <div style="color:#FF6700">{{totalAmount}}元</div>
+                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">
+                    批量删除
+                </el-button>
+                <el-button type="success"
+                           icon="el-icon-plus"
+                           class="handle-del mr10"
+                           @click="popGoodsAddDialog('addParam')">添加商品
+                </el-button>
+                <el-input v-model="queryParam.goodsId" placeholder="请输入商品ID"
+                          class="handle-input mr10"></el-input>
+                <el-input v-model="queryParam.goodsName" placeholder="请输入商品名称"
+                          class="handle-input mr10"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">
+                    查询
+                </el-button>
+                &nbsp
+                <el-popover
+                        placement="top-start"
+                        width="250"
+                        trigger="hover">
+                    <el-table :data="cartList" :show-header="false">
+                        <el-table-column>
+                            <template slot-scope="scope">
+                                <el-image
+                                        style="width: 50px; height: 50px"
+                                        :src="scope.row.imgUrl" fit="fill">
+                                    <div slot="error" class="image-slot"
+                                         style="margin-top: 45px;width: 100px;height: 100px;">
+                                        <i class="el-icon-picture-outline"></i>
                                     </div>
-                                </el-col>
-                                <el-col>
-                                    <router-link to="/cart">
-                                        <el-button style="background-color:#FF6700;color: white">去购物车结算</el-button>
-                                    </router-link>
-                                </el-col>
-                            </el-row>
-                            <el-button slot="reference" icon="el-icon-shopping-cart-full"
-                                       style="background-color:#FF6700;color: white">购物车（{{totalCount}}）
-                            </el-button>
-                        </el-popover>
-                    </el-col>
-                </el-row>
+                                </el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column property="goodsName"></el-table-column>
+                        <el-table-column align="center">
+                            <template slot-scope="scope">
+                                <span> {{scope.row.unitPrice}}元 x {{scope.row.quantity}}</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <br>
+                    <el-row type="flex" justify="center" :gutter="2">
+                        <el-col>
+                            <div>
+                                <div>共 {{totalCount}} 件商品</div>
+                                <div style="color:#FF6700">{{totalAmount}}元</div>
+                            </div>
+                        </el-col>
+                        <el-col>
+                            <router-link to="/cart">
+                                <el-button style="background-color:#FF6700;color: white">去购物车结算</el-button>
+                            </router-link>
+                        </el-col>
+                    </el-row>
+                    <el-button slot="reference" icon="el-icon-shopping-cart-full"
+                               style="background-color:#FF6700;color: white">购物车（{{totalCount}}）
+                    </el-button>
+                </el-popover>
 
             </div>
 
@@ -104,7 +89,7 @@
                 <el-table-column label="批次信息" align="center" type="expand" width="100">
                     <template slot-scope="scope">
                         <el-table :data="scope.row.lotList" border stripe :show-header="true">
-                            <el-table-column prop="lotId" label="批次ID" align="center"></el-table-column>
+                            <el-table-column prop="lotNo" label="批次编号" align="center"></el-table-column>
                             <el-table-column prop="unitPrice" label="商品单价" align="center">
                                 <template slot-scope="scope">￥ {{scope.row.unitPrice}}</template>
                             </el-table-column>
@@ -135,7 +120,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
+                <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                 <el-table-column label="商品图片" align="center">
                     <template slot-scope="scope">
@@ -224,8 +209,8 @@
                             <img width="100%" :src="dialogImageUrl" alt="">
                         </el-dialog>
                     </el-form-item>
-                    <el-form-item label="库存数量" prop="goodsQuantity">
-                        <el-input v-model="addParam.goodsQuantity" clearable></el-input>
+                    <el-form-item label="库存数量" prop="quantity">
+                        <el-input v-model="addParam.quantity" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="商品单价" prop="unitPrice">
                         <el-input v-model="addParam.unitPrice" clearable></el-input>
@@ -274,8 +259,8 @@
                     <el-form-item label="商品名称" prop="goodsName">
                         <el-input v-model="addLotParam.goodsName" :disabled="true"></el-input>
                     </el-form-item>
-                    <el-form-item label="库存数量" prop="goodsQuantity">
-                        <el-input v-model="addLotParam.goodsQuantity" clearable></el-input>
+                    <el-form-item label="库存数量" prop="quantity">
+                        <el-input v-model="addLotParam.quantity" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="商品单价" prop="unitPrice">
                         <el-input v-model="addLotParam.unitPrice" clearable></el-input>
@@ -523,7 +508,15 @@
             },
             //格式化过期状态
             formatExpireStatus: function(row, column) {
-                return row.expireStatus === 1 ? '已过期' : row.expireStatus === 0 ? '未过期' : '';
+                if (row.expireStatus === 1) {
+                    return '未过期';
+                } else if (row.expireStatus === 2) {
+                    return '将过期';
+                } else if (row.expireStatus === 3) {
+                    return '已过期';
+                } else {
+                    return '';
+                }
             },
             //格式化过期警告
             formatExpireRemindFlag: function(row, column) {
@@ -645,9 +638,24 @@
 
                 for (let index in this.cartList) {
                     if (this.cartList.hasOwnProperty(index)) {
-                        this.totalAmount += this.cartList[index].unitPrice * this.cartList[index].quantity;
+                        this.totalAmount += this.multiply(this.cartList[index].unitPrice, this.cartList[index].quantity);
                     }
                 }
+            },
+            multiply(num1, num2) {
+                let m = 0, s1 = num1.toString(), s2 = num2.toString();
+
+                try {
+                    m += s1.split('.')[1].length;
+                } catch (e) {
+                }
+
+                try {
+                    m += s2.split('.')[1].length;
+                } catch (e) {
+                }
+
+                return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m);
             },
             handlePictureCardPreview(file) {
                 this.dialogImageUrl = file.url;

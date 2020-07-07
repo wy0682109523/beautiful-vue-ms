@@ -57,7 +57,7 @@ export const deleteStaffList = query => {
 //员工登录
 export const login = query => {
     return request({
-        url: 'v1/staff/login',
+        url: 'v1/login/signIn',
         method: 'post',
         data: query
     });
@@ -75,7 +75,7 @@ export const changePassword = query => {
 //获取员工最新登录记录
 export const getLastLoginRecord = query => {
     return request({
-        url: 'v1/staff/getLastLoginRecord',
+        url: 'v1/login/getLastLoginRecord',
         method: 'post',
         data: query
     });

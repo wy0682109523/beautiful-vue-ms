@@ -14,8 +14,8 @@
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-                <el-input v-model="query.goodsId" placeholder="商品ID" class="handle-input mr10"></el-input>
-                <el-input v-model="query.goodsQuantity" placeholder="库存数量" class="handle-input mr10"></el-input>
+                <el-input v-model="query.goodsNo" placeholder="商品编号" class="handle-input mr10"></el-input>
+                <el-input v-model="query.quantity" placeholder="库存数量" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
             </div>
 
@@ -31,9 +31,10 @@
                     @selection-change="handleSelectionChange"
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
+                <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
-                <el-table-column prop="goodsQuantity" label="库存数量" align="center"></el-table-column>
+                <el-table-column prop="lotNo" label="批次编号" align="center"></el-table-column>
+                <el-table-column prop="quantity" label="库存数量" align="center"></el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center" fixed="right">
@@ -59,11 +60,14 @@
             <el-dialog title="修改库存" :visible.sync="updateInventoryDialogVisible" width="30%">
                 <el-form ref="updateInventoryParam" :model="updateInventoryParam" label-width="90px"
                          label-position="left">
-                    <el-form-item label="商品Id" prop="goodsId">
-                        <el-input v-model="updateInventoryParam.goodsId" :disabled="true"></el-input>
+                    <el-form-item label="商品编号" prop="goodsNo">
+                        <el-input v-model="updateInventoryParam.goodsNo" :disabled="true"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品数量" prop="goodsQuantity">
-                        <el-input v-model="updateInventoryParam.goodsQuantity" clearable></el-input>
+                    <el-form-item label="批次编号" prop="lotNo">
+                        <el-input v-model="updateInventoryParam.lotNo" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品数量" prop="quantity">
+                        <el-input v-model="updateInventoryParam.quantity" clearable></el-input>
                     </el-form-item>
                 </el-form>
 
@@ -84,8 +88,6 @@
         data() {
             return {
                 query: {
-                    goodsId: null,
-                    goodsQuantity: null,
                     offset: 1,
                     limit: 10
                 },

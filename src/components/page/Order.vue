@@ -15,7 +15,7 @@
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
 
-                <el-input v-model="query.orderId" placeholder="订单ID" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.orderNo" placeholder="订单编号" class="handle-input mr10" clearable></el-input>
                 <el-select v-model="query.paymentMethod" placeholder="请选择支付方式" clearable>
                     <el-option
                             v-for="item in paymentMethodList"
@@ -27,6 +27,7 @@
 
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch" style="margin-left: 10px">查询
                 </el-button>
+                <el-button type="primary" icon="el-icon-refresh-right" @click="restoreSearch">重置</el-button>
             </div>
 
             <el-table
@@ -40,7 +41,7 @@
                     @selection-change="handleSelectionChange"
             >
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="orderId" label="订单ID" align="center"></el-table-column>
+                <el-table-column prop="orderNo" label="订单编号" align="center"></el-table-column>
                 <el-table-column label="商品信息" width="350" align="center">
                     <template slot-scope="scope">
                         <div v-for="(item,index) in scope.row.orderGoodsList" :key="index" style="text-align:center">
@@ -111,8 +112,6 @@
         data() {
             return {
                 query: {
-                    orderId: null,
-                    paymentMethod: null,
                     offset: 1,
                     limit: 10
                 },
@@ -176,6 +175,14 @@
             handleSearch() {
                 this.$set(this.query, 'offset', 1);
                 this.getOrderData();
+            },
+            restoreSearch() {
+                this.query = {
+                    offset: 1,
+                    limit: 10
+                };
+
+                this.handleSearch();
             },
             // 删除操作
             handleDelete(index, row) {

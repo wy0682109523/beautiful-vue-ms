@@ -31,8 +31,8 @@
                         @selection-change="handleSelectionChange">
 
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
-                    <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
-                    <el-table-column prop="lotId" label="批次ID" align="center"></el-table-column>
+                    <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
+                    <el-table-column prop="lotNo" label="批次编号" align="center"></el-table-column>
                     <el-table-column label="商品图片" align="center">
                         <template slot-scope="scope">
                             <el-image
@@ -56,7 +56,7 @@
                     </el-table-column>
                     <el-table-column label="小计" align="center">
                         <template slot-scope="scope">
-                            <span>￥ {{scope.row.unitPrice*scope.row.quantity}}</span>
+                            <span>￥ {{multiply(scope.row.unitPrice,scope.row.quantity)}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="180" align="center" fixed="right">
@@ -99,8 +99,8 @@
                         :show-header="true"
                         @selection-change="handleSelectionChange">
 
-                    <el-table-column prop="goodsId" label="商品ID" align="center"></el-table-column>
-                    <el-table-column prop="lotId" label="批次ID" align="center"></el-table-column>
+                    <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
+                    <el-table-column prop="lotNo" label="批次编号" align="center"></el-table-column>
                     <el-table-column label="商品图片" align="center">
                         <template slot-scope="scope">
                             <el-image
@@ -122,7 +122,7 @@
 
                     <el-table-column label="小计" align="center">
                         <template slot-scope="scope">
-                            <span>￥ {{scope.row.unitPrice*scope.row.quantity}}</span>
+                            <span>￥ {{multiply(scope.row.unitPrice,scope.row.quantity)}}</span>
                         </template>
                     </el-table-column>
 
@@ -198,6 +198,7 @@
                 query: {
                     staffId: '1'
                 },
+                username: null,
                 createOrderParam: { discountAmount: 0, cashAmount: 0 },
                 cartList: [],
                 multipleSelection: [],
@@ -232,10 +233,11 @@
             };
         },
         created() {
+            this.username = localStorage.getItem('ms_username');
             this.getCartData();
         },
         methods: {
-            // 获取库存列表
+            // 获取购物车列表
             getCartData() {
                 getCartList(this.query).then(response => {
                     this.cartList = response.result.cartList;
@@ -317,13 +319,28 @@
                     this.$message.error('更新失败');
                 });
             },
+            multiply(num1, num2) {
+                let m = 0, s1 = num1.toString(), s2 = num2.toString();
+
+                try {
+                    m += s1.split('.')[1].length;
+                } catch (e) {
+                }
+
+                try {
+                    m += s2.split('.')[1].length;
+                } catch (e) {
+                }
+
+                return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m);
+            },
             //每次选择商品、更新商品，删除商品，清空商品，都要重新计算合计
             calculateTotalAmount() {
                 this.totalAmount = 0;
 
                 for (let index in this.multipleSelection) {
                     if (this.multipleSelection.hasOwnProperty(index)) {
-                        this.totalAmount += this.multipleSelection[index].unitPrice * this.multipleSelection[index].quantity;
+                        this.totalAmount += this.multiply(this.multipleSelection[index].unitPrice, this.multipleSelection[index].quantity);
                     }
                 }
             },
@@ -362,6 +379,7 @@
 
                 let orderGoodsList = [];
                 this.createOrderParam['orderAmount'] = this.totalAmount;
+                this.createOrderParam['username'] = this.username;
 
                 for (let element of this.multipleSelection) {
 

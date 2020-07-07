@@ -15,14 +15,15 @@
                 <el-button type="primary" icon="el-icon-circle-plus" class="handle-del mr10" @click="popupStaffForm">
                     新增
                 </el-button>
-                <el-input v-model="query.username" placeholder="用户名" class="handle-input mr10"></el-input>
-                <el-input v-model="query.staffName" placeholder="姓名" class="handle-input mr10"></el-input>
-                <el-input v-model="query.phone" placeholder="手机号" class="handle-input mr10"></el-input>
+                <el-input v-model="query.staffNo" placeholder="员工编号" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.username" placeholder="用户名" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.staffName" placeholder="姓名" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.phone" placeholder="手机号" class="handle-input mr10" clearable></el-input>
                 <el-select v-model="query.adminFlag" placeholder="管理员" class="handle-select mr10" clearable>
                     <el-option key="1" label="管理员" value="1"></el-option>
                     <el-option key="2" label="非管理员" value="0"></el-option>
                 </el-select>
-                <el-select v-model="query.status" placeholder="在职状态" class="handle-select mr10" clearable>
+                <el-select v-model="query.employStatus" placeholder="在职状态" class="handle-select mr10" clearable>
                     <el-option key="1" label="在职" value="1"></el-option>
                     <el-option key="2" label="离职" value="0"></el-option>
                 </el-select>
@@ -31,7 +32,7 @@
                     <el-option key="2" label="男" value="1"></el-option>
                 </el-select>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
-                <el-button type="primary" icon="el-icon-search" @click="restoreSearch">重置</el-button>
+                <el-button type="primary" icon="el-icon-refresh-right" @click="restoreSearch">重置</el-button>
             </div>
             <!-- 表单部分-->
             <el-table
@@ -43,12 +44,12 @@
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="staffId" label="员工ID" align="center"></el-table-column>
+                <el-table-column prop="staffNo" label="员工编号" align="center"></el-table-column>
                 <el-table-column prop="username" label="用户名" align="center"></el-table-column>
                 <el-table-column label="员工姓名" align="center" sortable>
                     <template slot-scope="scope">
                         <el-popover trigger="hover" placement="top">
-                            <p>编号: {{ scope.row.staffId }}</p>
+                            <p>编号: {{ scope.row.staffNo }}</p>
                             <p>姓名: {{ scope.row.staffName }}</p>
                             <div slot="reference" class="name-wrapper">
                                 <el-tag size="medium">{{ scope.row.staffName }}</el-tag>
@@ -65,7 +66,8 @@
                         <el-avatar icon="el-icon-user-solid" :src="scope.row.avatarImg"></el-avatar>
                     </template>
                 </el-table-column>
-                <el-table-column prop="status" label="在职状态" align="center" :formatter="statusFormat"></el-table-column>
+                <el-table-column prop="employStatus" label="在职状态" align="center"
+                                 :formatter="employStatusFormat"></el-table-column>
                 <el-table-column prop="adminFlag" label="管理员标识" align="center"
                                  :formatter="adminFormat"></el-table-column>
                 <el-table-column prop="phone" label="手机号" align="center"></el-table-column>
@@ -187,7 +189,7 @@
 
             return {
                 query: {
-                    offset: 0,
+                    offset: 1,
                     limit: 10
                 },
                 updateParam: {},
@@ -241,7 +243,7 @@
             },
             restoreSearch() {
                 this.query = {
-                    offset: 0,
+                    offset: 1,
                     limit: 10
                 };
 
@@ -322,10 +324,10 @@
                     return '';
                 }
             },
-            statusFormat(row, column) {
-                if (row.status === 0) {
+            employStatusFormat(row, column) {
+                if (row.employStatus === 0) {
                     return '离职';
-                } else if (row.status === 1) {
+                } else if (row.employStatus === 1) {
                     return '在职';
                 } else {
                     return '';
@@ -346,10 +348,11 @@
                         return false;
                     }
                 });
-
             },
             //弹出新增员工表单
             popupStaffForm() {
+                //初始化参数
+                this.addParam = {};
                 this.dialogAddVisible = true;
             },
             //取消员工表单
