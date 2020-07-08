@@ -129,6 +129,7 @@
             },
             // 触发搜索按钮
             handleSearch() {
+                this.spanList = [];
                 this.$set(this.query, 'offset', 1);
                 this.getInventoryData();
             },
