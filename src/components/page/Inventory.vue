@@ -90,7 +90,8 @@
                 updateInventoryParam: {},
                 inventoryList: [],
                 totalSize: 0,
-                updateInventoryDialogVisible: false
+                updateInventoryDialogVisible: false,
+                spanList: []
             };
         },
         created() {
@@ -102,6 +103,26 @@
                 getInventoryList(this.query).then(response => {
                     this.inventoryList = response.result.inventoryList;
                     this.totalSize = response.result.totalSize;
+
+                    //按照某一列相同数据合并行需要原数据有序
+
+                    let position = 0;
+
+                    for (let i = 0; i < this.inventoryList.length; i++) {
+                        if (i === 0) {
+                            this.spanList.push(1);
+                            position = 0;
+                        } else {
+                            // 判断当前元素与上一个元素是否相同
+                            if (this.inventoryList[i].goodsId === this.inventoryList[i - 1].goodsId) {
+                                this.spanList[position] += 1;
+                                this.spanList.push(0);
+                            } else {
+                                this.spanList.push(1);
+                                position = i;
+                            }
+                        }
+                    }
                 }).catch(() => {
                     this.$message.error('查询失败');
                 });
@@ -147,18 +168,14 @@
                 this.$refs[formName].clearValidate();
             },
             mergeRow({ row, column, rowIndex, columnIndex }) {
-                if (false) {
-                    if (rowIndex % 2 === 0) {
-                        return {
-                            rowspan: 2,
-                            colspan: 1
-                        };
-                    } else {
-                        return {
-                            rowspan: 0,
-                            colspan: 0
-                        };
-                    }
+                //合并前两行相同数据
+                if (columnIndex === 0 || columnIndex === 1) {
+                    let _row = this.spanList[rowIndex];
+                    let _col = _row > 0 ? 1 : 0;
+                    return {
+                        rowspan: _row,
+                        colspan: _col
+                    };
                 }
             }
         }
