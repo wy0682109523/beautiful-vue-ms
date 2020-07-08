@@ -84,6 +84,7 @@
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55" align="center"></el-table-column>
 
                 <!-- 批次信息-->
                 <el-table-column label="批次信息" align="center" type="expand" width="100">
@@ -100,8 +101,8 @@
                             <el-table-column prop="expiryDate" label="过期日期" align="center"></el-table-column>
                             <el-table-column prop="expireTime" label="保质期（天）" align="center"></el-table-column>
                             <el-table-column prop="remainTime" label="剩余时间（天）" align="center"></el-table-column>
-                            <el-table-column prop="expireRemindFlag" label="过期提醒" align="center"
-                                             :formatter="formatExpireRemindFlag"></el-table-column>
+                            <el-table-column prop="remindFlag" label="过期提醒" align="center"
+                                             :formatter="formatRemindFlag"></el-table-column>
                             <el-table-column prop="expireStatus" label="过期状态" align="center"
                                              :formatter="formatExpireStatus"></el-table-column>
                             <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
@@ -119,7 +120,7 @@
                         </el-table>
                     </template>
                 </el-table-column>
-                <el-table-column type="selection" width="55" align="center"></el-table-column>
+
                 <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                 <el-table-column label="商品图片" align="center">
@@ -163,8 +164,8 @@
             <el-dialog title="修改商品" :visible.sync="updateGoodsDialogVisible" width="30%" center>
                 <el-form ref="updateGoodsParam" :model="updateGoodsParam" label-width="90px"
                          label-position="left">
-                    <el-form-item label="商品Id" prop="goodsId">
-                        <el-input v-model="updateGoodsParam.goodsId" :disabled="true"></el-input>
+                    <el-form-item label="商品编号" prop="goodsNo">
+                        <el-input v-model="updateGoodsParam.goodsNo" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="商品名称" prop="goodsName">
                         <el-input v-model="updateGoodsParam.goodsName" clearable></el-input>
@@ -230,10 +231,10 @@
                     <el-form-item label="保质期（天）" prop="expiryTime">
                         <el-input v-model="addParam.expireTime" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireRemindFlag">
+                    <el-form-item label="过期提醒" prop="remindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="addParam.expireRemindFlag"
+                                v-model="addParam.remindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -253,8 +254,8 @@
             <!--添加批次-->
             <el-dialog title="添加批次" :visible.sync="addLotDialogVisible" width="25%" center>
                 <el-form ref="addLotParam" :model="addLotParam" label-width="110px" label-position="left">
-                    <el-form-item label="商品Id" prop="goodsId">
-                        <el-input v-model="addLotParam.goodsId" :disabled="true"></el-input>
+                    <el-form-item label="商品编号" prop="goodsNo">
+                        <el-input v-model="addLotParam.goodsNo" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="商品名称" prop="goodsName">
                         <el-input v-model="addLotParam.goodsName" :disabled="true"></el-input>
@@ -280,10 +281,10 @@
                     <el-form-item label="保质期（天）" prop="expiryTime">
                         <el-input v-model="addLotParam.expireTime" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireRemindFlag">
+                    <el-form-item label="过期提醒" prop="remindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="addLotParam.expireRemindFlag"
+                                v-model="addLotParam.remindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -304,11 +305,11 @@
             <el-dialog title="修改批次" :visible.sync="updateLotDialogVisible" width="30%" center>
                 <el-form ref="updateLotParam" :model="updateLotParam" label-width="90px"
                          label-position="left">
-                    <el-form-item label="商品Id" prop="goodsId">
-                        <el-input v-model="updateLotParam.goodsId" :disabled="true"></el-input>
+                    <el-form-item label="商品编号" prop="goodsNo">
+                        <el-input v-model="updateLotParam.goodsNo" :disabled="true"></el-input>
                     </el-form-item>
-                    <el-form-item label="批次Id" prop="lotId">
-                        <el-input v-model="updateLotParam.lotId" :disabled="true"></el-input>
+                    <el-form-item label="批次编号" prop="lotNo">
+                        <el-input v-model="updateLotParam.lotNo" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="商品单价" prop="unitPrice">
                         <el-input v-model="updateLotParam.unitPrice" clearable></el-input>
@@ -316,10 +317,10 @@
                     <el-form-item label="采购价" prop="purchasePrice">
                         <el-input v-model="updateLotParam.purchasePrice" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="过期提醒" prop="expireRemindFlag">
+                    <el-form-item label="过期提醒" prop="remindFlag">
                         <el-switch
                                 style="display: block"
-                                v-model="updateLotParam.expireRemindFlag"
+                                v-model="updateLotParam.remindFlag"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-text="开启"
@@ -362,9 +363,9 @@
                 updateGoodsParam: {},
                 updateLotParam: {},
                 addLotParam: {},
-                addCartParam: {},
                 goodsList: [],
                 cartList: [],
+                staffId: null,
                 multipleSelection: [],
                 totalSize: 0,
                 totalAmount: 0,
@@ -377,7 +378,7 @@
                 dialogImageUrl: '',
                 hideUpload: false,
                 imgUrl: null,
-                //日期选择
+                //日期选择器
                 pickerOptions: {
                     disabledDate(time) {
                         return time.getTime() > Date.now();
@@ -407,6 +408,7 @@
         },
         //初始化
         created() {
+            this.staffId = localStorage.getItem('ms_staffId');
             this.getGoodsData();
             this.getCartDate();
         },
@@ -414,7 +416,7 @@
             //获取购物车列表
             getCartDate() {
                 let query = {
-                    staffId: '1'
+                    staffId: this.staffId
                 };
 
                 getCartList(query).then(response => {
@@ -430,6 +432,7 @@
             // 获取库存列表
             getGoodsData() {
                 getGoodsList(this.queryParam).then(response => {
+                    console.log(response);
                     this.goodsList = response.result.goodsList;
                     this.totalSize = response.result.totalSize;
                 }).catch(() => {
@@ -519,8 +522,8 @@
                 }
             },
             //格式化过期警告
-            formatExpireRemindFlag: function(row, column) {
-                return row.expireRemindFlag === 1 ? '开启' : row.expireRemindFlag === 0 ? '关闭' : '';
+            formatRemindFlag: function(row, column) {
+                return row.remindFlag === 1 ? '开启' : row.remindFlag === 0 ? '关闭' : '';
             },
             popGoodsAddDialog(formName) {
                 this.addParam = {};
@@ -586,6 +589,7 @@
 
             },
             popLotUpdateDialog(index, row) {
+                console.log(row);
                 this.updateLotParam = row;
                 this.updateLotDialogVisible = true;
             },
@@ -610,14 +614,14 @@
             //添加购物车
             addCart(index, row) {
 
-                this.addCartParam = {
-                    staffId: '1',
+                let addCartParam = {
+                    staffId: this.staffId,
                     goodsId: row.goodsId,
                     lotId: row.lotId,
                     quantity: 1
                 };
 
-                addCart(this.addCartParam).then(() => {
+                addCart(addCartParam).then(() => {
                     this.$message.success('添加成功');
                     this.getCartDate();
                 }).catch(() => {

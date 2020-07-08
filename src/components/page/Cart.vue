@@ -195,10 +195,7 @@
             };
 
             return {
-                query: {
-                    staffId: '1'
-                },
-                username: null,
+                staffId: null,
                 createOrderParam: { discountAmount: 0, cashAmount: 0 },
                 cartList: [],
                 multipleSelection: [],
@@ -233,13 +230,15 @@
             };
         },
         created() {
-            this.username = localStorage.getItem('ms_username');
+            this.staffId = localStorage.getItem('ms_staffId');
             this.getCartData();
         },
         methods: {
             // 获取购物车列表
             getCartData() {
-                getCartList(this.query).then(response => {
+                let query = { staffId: this.staffId };
+
+                getCartList(query).then(response => {
                     this.cartList = response.result.cartList;
                 }).catch(() => {
                     this.$message.error('查询失败');
@@ -383,7 +382,7 @@
 
                 let orderGoodsList = [];
                 this.createOrderParam['orderAmount'] = this.totalAmount;
-                this.createOrderParam['username'] = this.username;
+                this.createOrderParam['staffId'] = this.staffId;
 
                 for (let element of this.multipleSelection) {
 

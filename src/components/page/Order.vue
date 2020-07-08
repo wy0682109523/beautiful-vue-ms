@@ -14,7 +14,6 @@
             <div class="handle-box">
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
-
                 <el-input v-model="query.orderNo" placeholder="订单编号" class="handle-input mr10" clearable></el-input>
                 <el-select v-model="query.paymentMethod" placeholder="请选择支付方式" clearable>
                     <el-option
@@ -39,9 +38,10 @@
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange"
-            >
+                    @cell-click="copy">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="orderNo" label="订单编号" align="center"></el-table-column>
+                <el-table-column prop="staffName" label="下单人员" align="center"></el-table-column>
                 <el-table-column label="商品信息" width="350" align="center">
                     <template slot-scope="scope">
                         <div v-for="(item,index) in scope.row.orderGoodsList" :key="index" style="text-align:center">
@@ -257,6 +257,15 @@
                         return element.label;
                     }
                 }
+            },
+            copy(value) {
+                let _this = this;
+
+                this.$copyText(value.orderNo).then(function(e) {
+                    _this.$message.success('订单编号【' + value.orderNo + '】复制成功');
+                }, function(e) {
+                    _this.$message.error('订单编号复制失败');
+                });
             }
         }
     };

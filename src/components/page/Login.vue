@@ -51,6 +51,7 @@
                             if (response.status === 200) {
 
                                 localStorage.setItem('ms_username', this.param.username);
+                                localStorage.setItem('ms_staffId', response.result.staffId);
 
                                 this.$message.success('登录成功');
                                 this.$router.push('/');
