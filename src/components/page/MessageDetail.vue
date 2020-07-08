@@ -21,7 +21,7 @@
 
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in unreadList" :key="index">
-                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
+                                    {{index+1}}. {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
 
@@ -31,7 +31,7 @@
                             <template slot="title"><i class="el-icon-menu"></i>已读消息</template>
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in readList" :key="index">
-                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
+                                    {{index+1}}. {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
@@ -40,7 +40,7 @@
                             <template slot="title"><i class="el-icon-delete"></i>回收站消息</template>
                             <el-menu-item-group>
                                 <el-menu-item :index="item.messageId" v-for="(item,index) in recycleList" :key="index">
-                                    {{index+1}}. {{item.messageId}} - {{item.messageTitle}}
+                                    {{index+1}}. {{item.messageTitle}}
                                 </el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
@@ -53,9 +53,7 @@
                     <el-header align="center" height="150px">
                         <el-row type="flex" class="row-bg" justify="center">
                             <el-col :span="20">
-                                <div style="text-align:center">{{messageInfo.messageId}} -
-                                    {{messageInfo.messageTitle}}
-                                </div>
+                                <div style="text-align:center">{{messageInfo.messageTitle}}</div>
                             </el-col>
                         </el-row>
                         <br>

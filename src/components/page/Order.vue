@@ -15,6 +15,7 @@
                 <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
                 </el-button>
                 <el-input v-model="query.orderNo" placeholder="订单编号" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.staffName" placeholder="员工姓名" class="handle-input mr10" clearable></el-input>
                 <el-select v-model="query.paymentMethod" placeholder="请选择支付方式" clearable>
                     <el-option
                             v-for="item in paymentMethodList"
@@ -38,7 +39,7 @@
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange"
-                    @cell-click="copy">
+                    @cell-dblclick="copy">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="orderNo" label="订单编号" align="center"></el-table-column>
                 <el-table-column prop="staffName" label="下单人员" align="center"></el-table-column>
@@ -258,14 +259,16 @@
                     }
                 }
             },
-            copy(value) {
-                let _this = this;
+            copy(row, column, cell, event) {
+                if (column['property'] === 'orderNo') {
+                    let _this = this;
 
-                this.$copyText(value.orderNo).then(function(e) {
-                    _this.$message.success('订单编号【' + value.orderNo + '】复制成功');
-                }, function(e) {
-                    _this.$message.error('订单编号复制失败');
-                });
+                    this.$copyText(row.orderNo).then(function(e) {
+                        _this.$message.success('订单编号【' + row.orderNo + '】复制成功');
+                    }, function(e) {
+                        _this.$message.error('订单编号复制失败');
+                    });
+                }
             }
         }
     };

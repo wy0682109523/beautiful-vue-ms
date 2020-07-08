@@ -17,9 +17,10 @@
                     </el-button>
                     <el-button type="success" icon="el-icon-plus" class="handle-del mr10" @click="popAddDialog">添加系统配置
                     </el-button>
-                    <el-input v-model="queryParam.systemKey" placeholder="请输入系统配置key"
-                              class="handle-input mr10"></el-input>
+                    <el-input v-model="query.systemKey" placeholder="请输入系统配置key"
+                              class="handle-input mr10" clearable></el-input>
                     <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                    <el-button type="primary" icon="el-icon-refresh-right" @click="restoreSearch">重置</el-button>
                     <el-switch
                             style="display: inline;margin-left: 10px"
                             v-model="warnTypeOnOff"
@@ -54,8 +55,8 @@
                     ref="multipleTable"
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
-                    @selection-change="handleSelectionChange">
-
+                    @selection-change="handleSelectionChange"
+                    @cell-click="copy">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="systemKey" label="系统配置-key" align="center"></el-table-column>
                 <el-table-column prop="systemValue" label="系统配置-value" align="center"></el-table-column>
@@ -75,8 +76,8 @@
                 <el-pagination
                         background
                         layout="total, prev, pager, next"
-                        :current-page="queryParam.offset"
-                        :page-size="queryParam.limit"
+                        :current-page="query.offset"
+                        :page-size="query.limit"
                         :total="totalSize"
                         @current-change="handlePageChange"
                 ></el-pagination>
@@ -134,8 +135,7 @@
         name: 'system',
         data() {
             return {
-                queryParam: {
-                    systemKey: null,
+                query: {
                     offset: 1,
                     limit: 10
                 },
@@ -158,7 +158,7 @@
         methods: {
             // 获取库存列表
             getSystemData() {
-                getSystemList(this.queryParam).then(response => {
+                getSystemList(this.query).then(response => {
                     console.log(response);
                     this.systemList = response.result.systemList;
                     this.totalSize = response.result.totalSize;
@@ -182,8 +182,16 @@
             },
             // 触发搜索按钮
             handleSearch() {
-                this.$set(this.queryParam, 'offset', 1);
+                this.$set(this.query, 'offset', 1);
                 this.getSystemData();
+            },
+            restoreSearch() {
+                this.query = {
+                    offset: 1,
+                    limit: 10
+                };
+
+                this.handleSearch();
             },
             // 删除操作
             handleDelete(index, row) {
@@ -226,7 +234,7 @@
                         //删除之后再刷新页面
                         this.$message.success(`删除成功`);
 
-                        this.$set(this.queryParam, 'offset', this.getJumpPage(deleteListParam.systemKeyList.length));
+                        this.$set(this.query, 'offset', this.getJumpPage(deleteListParam.systemKeyList.length));
 
                         this.getSystemData();
                     }).catch(() => {
@@ -241,12 +249,12 @@
             },
             // 分页导航
             handlePageChange(val) {
-                this.$set(this.queryParam, 'offset', val);
+                this.$set(this.query, 'offset', val);
                 this.getSystemData();
             },
             //跳转第几页
             getJumpPage(deleteCount) {
-                return Math.ceil((this.totalSize - deleteCount) / this.queryParam.limit);
+                return Math.ceil((this.totalSize - deleteCount) / this.query.limit);
             },
             popAddDialog() {
                 this.addParam = {};
@@ -256,7 +264,7 @@
                 addSystem(this.addParam).then(() => {
                     this.$message.success('添加成功');
 
-                    this.$set(this.queryParam, 'offset', 1);
+                    this.$set(this.query, 'offset', 1);
 
                     this.getSystemData();
 
@@ -303,7 +311,7 @@
                 updateSystem(this.updateParam).then(() => {
                     this.$message.success('更新成功');
 
-                    this.$set(this.queryParam, 'offset', 1);
+                    this.$set(this.query, 'offset', 1);
 
                     this.getSystemData();
                 }).catch(() => {
@@ -321,11 +329,20 @@
                 updateSystem(this.updateParam).then(() => {
                     this.$message.success('更新成功');
 
-                    this.$set(this.queryParam, 'offset', 1);
+                    this.$set(this.query, 'offset', 1);
 
                     this.getSystemData();
                 }).catch(() => {
                     this.$message.error('更新失败');
+                });
+            },
+            copy(value) {
+                let _this = this;
+
+                this.$copyText(value.systemKey).then(function(e) {
+                    _this.$message.success('系统配置-key【' + value.systemKey + '】复制成功');
+                }, function(e) {
+                    _this.$message.error('系统配置-key复制失败');
                 });
             }
         }
