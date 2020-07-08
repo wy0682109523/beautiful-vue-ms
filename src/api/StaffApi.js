@@ -80,3 +80,12 @@ export const getLastLoginRecord = query => {
         data: query
     });
 };
+
+//更新员工
+export const updateStaff = query => {
+    return request({
+        url: 'v1/staff/updateStaff',
+        method: 'post',
+        data: query
+    });
+};

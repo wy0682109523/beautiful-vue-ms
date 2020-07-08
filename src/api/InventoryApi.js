@@ -17,21 +17,3 @@ export const updateInventory = query => {
         data: query
     });
 };
-
-//删除库存
-export const deleteInventory = query => {
-    return request({
-        url: 'v1/inventory/deleteInventory',
-        method: 'post',
-        data: query
-    });
-};
-
-//删除库存列表
-export const deleteInventoryList = query => {
-    return request({
-        url: 'v1/inventory/deleteInventoryList',
-        method: 'post',
-        data: query
-    });
-};

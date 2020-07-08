@@ -12,11 +12,11 @@
         <div class="container">
 
             <div class="handle-box">
-                <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
-                </el-button>
-                <el-input v-model="query.goodsNo" placeholder="商品编号" class="handle-input mr10"></el-input>
-                <el-input v-model="query.quantity" placeholder="库存数量" class="handle-input mr10"></el-input>
+                <el-input v-model="query.goodsNo" placeholder="商品编号" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.goodsName" placeholder="商品名称" class="handle-input mr10" clearable></el-input>
+                <el-input v-model="query.quantity" placeholder="库存数量" class="handle-input mr10" clearable></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+                <el-button type="primary" icon="el-icon-refresh-right" @click="restoreSearch">重置</el-button>
             </div>
 
             <el-table
@@ -27,10 +27,7 @@
                     ref="multipleTable"
                     :span-method="mergeRow"
                     :highlight-current-row="true"
-                    header-cell-class-name="table-header"
-                    @selection-change="handleSelectionChange"
-            >
-                <el-table-column type="selection" width="55" align="center"></el-table-column>
+                    header-cell-class-name="table-header">
                 <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
                 <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
                 <el-table-column prop="lotNo" label="批次编号" align="center"></el-table-column>
@@ -41,7 +38,6 @@
                     <template slot-scope="scope">
                         <el-button type="success" @click="popupUpdateInventoryDialog(scope.$index, scope.row)">修改
                         </el-button>
-                        <el-button type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -81,7 +77,7 @@
 </template>
 
 <script>
-    import { deleteInventory, deleteInventoryList, getInventoryList, updateInventory } from '../../api/InventoryApi';
+    import { getInventoryList, updateInventory } from '../../api/InventoryApi';
 
     export default {
         name: 'inventory',
@@ -91,15 +87,8 @@
                     offset: 1,
                     limit: 10
                 },
-                deleteParam: {
-                    goodsId: null
-                },
-                deleteListParam: {
-                    goodsIdList: []
-                },
                 updateInventoryParam: {},
                 inventoryList: [],
-                multipleSelection: [],
                 totalSize: 0,
                 updateInventoryDialogVisible: false
             };
@@ -122,70 +111,13 @@
                 this.$set(this.query, 'offset', 1);
                 this.getInventoryData();
             },
-            // 删除操作
-            handleDelete(index, row) {
-                // 二次确认删除
-                this.$confirm('确定要删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
-                        this.deleteParam.goodsId = row.goodsId;
+            restoreSearch() {
+                this.query = {
+                    offset: 1,
+                    limit: 10
+                };
 
-                        deleteInventory(this.deleteParam);
-                        //表单伪刷新或者重新拉取数据
-                        this.inventoryList.splice(index, 1);
-
-                        this.$set(this, 'totalSize', --this.totalSize);
-
-                        this.$message.success('删除成功');
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
-                    });
-            },
-            // 多选操作
-            handleSelectionChange(val) {
-                this.multipleSelection = val;
-            },
-            delAllSelection() {
-
-                // 二次确认删除
-                this.$confirm('确定要全部删除吗？', '提示', {
-                    type: 'warning'
-                })
-                    .then(() => {
-
-                        //清空删除参数
-                        this.deleteListParam.goodsIdList = [];
-
-                        this.multipleSelection.map((item, index) => {
-                            this.deleteListParam.goodsIdList.push(item.goodsId);
-                        });
-
-                        deleteInventoryList(this.deleteListParam).then(() => {
-
-                            //删除之后再刷新页面
-                            this.$message.success(`删除成功`);
-
-                            this.$set(this.query, 'offset', this.getJumpPage(this.deleteListParam.goodsIdList.length));
-
-                            this.getInventoryData();
-                        });
-
-                        //清空选择项
-                        this.multipleSelection = [];
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: '删除失败',
-                            type: 'error'
-                        });
-                    });
+                this.handleSearch();
             },
             // 分页导航
             handlePageChange(val) {

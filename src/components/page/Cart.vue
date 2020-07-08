@@ -278,6 +278,10 @@
                 this.calculateTotalAmount();
             },
             delAllSelection() {
+                if (this.multipleSelection.length === 0) {
+                    this.$message.error('您还没有选择商品哦，请选择后重试');
+                    return;
+                }
 
                 // 二次确认删除
                 this.$confirm('确定要全部删除吗？', '提示', { type: 'warning' }).then(() => {
