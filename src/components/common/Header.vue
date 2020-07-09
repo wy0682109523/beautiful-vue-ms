@@ -32,7 +32,7 @@
 
                 <!-- 用户头像 -->
                 <div class="user-avator">
-                    <img :src="staffInfo.avatarImg"/>
+                    <el-avatar icon="el-icon-user-solid" :src="staffInfo.avatarImg"></el-avatar>
                 </div>
 
                 <!-- 用户名下拉菜单 -->
@@ -79,6 +79,29 @@
                 <el-dialog title="修改个人信息" :visible.sync="dialogStaffInfoVisible" width="30%" center>
                     <el-form ref="staffInfo" :model="staffInfo" label-width="110px" label-position="left"
                              :rules="rules">
+                        <el-form-item label="用户头像：" prop="avatarImg">
+                            <el-upload
+                                    list-type="picture-card"
+                                    drag
+                                    accept="image/*"
+                                    action="v1/file/upload/avatar"
+                                    :show-file-list="true"
+                                    :multiple="false"
+                                    :limit="1"
+                                    :file-list="fileList"
+                                    :on-preview="handlePictureCardPreview"
+                                    :on-change="handleChange"
+                                    :on-remove="handleRemove"
+                                    :on-success="handleSuccess"
+                                    :class="{hide:hideUpload}"
+                                    :auto-upload="true">
+                                <i class="el-icon-upload"></i>
+                                <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+                            </el-upload>
+                            <el-dialog :visible.sync="imgDialogVisible">
+                                <img width="100%" :src="dialogImageUrl" alt="">
+                            </el-dialog>
+                        </el-form-item>
                         <el-form-item label="员工编号：" prop="staffNo">
                             <el-input v-model="staffInfo.staffNo" clearable disabled></el-input>
                         </el-form-item>
@@ -116,6 +139,7 @@
     import bus from '../common/bus';
     import { getMessageList } from '../../api/MessageApi';
     import { changePassword, getStaffDetail, updateStaff } from '../../api/StaffApi';
+    import { removeImg } from '../../api/FileApi';
 
     export default {
         data() {
@@ -135,6 +159,10 @@
                 staffInfo: {},
                 changePasswordParam: {},
                 unreadList: [],
+                imgDialogVisible: false,
+                dialogImageUrl: '',
+                hideUpload: false,
+                fileList: [],
                 rules: {
                     oldPassword: [
                         { required: true, message: '请输旧密码', trigger: 'blur' }
@@ -209,10 +237,18 @@
             },
             popChangeStaffInfoDialog() {
                 this.dialogStaffInfoVisible = true;
+
+                if (this.staffInfo.avatarImg != null) {
+                    this.hideUpload = true;
+                    this.fileList = [{ name: 'avatar.jpg', url: this.staffInfo.avatarImg }];
+                } else {
+                    this.hideUpload = false;
+                }
             },
             cancelStaffInfoDialog() {
                 this.getStaffData();
                 this.dialogStaffInfoVisible = false;
+                this.fileList = [];
             },
             saveStaffInfo(formName) {
                 this.$refs[formName].validate((valid) => {
@@ -229,6 +265,31 @@
                         return false;
                     }
                 });
+
+                this.fileList = [];
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.imgDialogVisible = true;
+            },
+            handleChange(file, fileList) {
+                this.hideUpload = fileList.length === 1;
+            },
+            handleRemove(file, fileList) {
+                this.hideUpload = fileList.length === 1;
+
+                let removeParam = {
+                    imgUrl: file.url
+                };
+
+                removeImg(removeParam).then(() => {
+                    updateStaff({ staffId: this.staffInfo.staffId, avatarImg: '' });
+                });
+            },
+            handleSuccess(response, file, fileList) {
+                delete this.staffInfo.avatarImg;
+
+                updateStaff({ staffId: this.staffInfo.staffId, avatarImg: response.result.imgUrl });
             },
             // 侧边栏折叠
             collapseChage() {
@@ -270,7 +331,7 @@
         }
     };
 </script>
-<style scoped>
+<style>
     .header {
         position: relative;
         box-sizing: border-box;
@@ -357,5 +418,19 @@
 
     .el-dropdown-menu__item {
         text-align: center;
+    }
+
+    .hide .el-upload--picture-card {
+        display: none;
+    }
+
+    .el-upload--picture-card {
+        width: 148px;
+        height: 148px;
+    }
+
+    .el-upload-dragger {
+        width: 148px;
+        height: 148px;
     }
 </style>

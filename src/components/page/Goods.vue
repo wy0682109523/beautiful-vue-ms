@@ -200,10 +200,8 @@
                                 :on-remove="handleRemove"
                                 :on-success="handleSuccess"
                                 :class="{hide:hideUpload}"
-                                :auto-upload="true"
-                        >
+                                :auto-upload="true">
                             <i class="el-icon-upload"></i>
-                            <span class="el-upload__text">将文件拖到此处，或<em>点击上传</em></span>
                             <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
                         </el-upload>
                         <el-dialog :visible.sync="imgDialogVisible">
@@ -718,12 +716,13 @@
         display: none;
     }
 
-    .el-upload-dragger {
-        width: 352px;
+    .el-upload--picture-card {
+        width: 148px;
         height: 148px;
     }
 
-    .el-upload-dragger .el-upload__text {
-        margin-left: 2px;
+    .el-upload-dragger {
+        width: 148px;
+        height: 148px;
     }
 </style>
