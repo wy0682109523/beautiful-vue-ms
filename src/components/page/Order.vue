@@ -34,6 +34,7 @@
                     :data="orderList"
                     border
                     stripe
+                    tooltip-effect="light"
                     class="table"
                     ref="multipleTable"
                     :highlight-current-row="true"
@@ -41,9 +42,9 @@
                     @selection-change="handleSelectionChange"
                     @cell-dblclick="copy">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="orderNo" label="订单编号" align="center"></el-table-column>
+                <el-table-column prop="orderNo" label="订单编号" align="center" :show-overflow-tooltip="true"></el-table-column>
                 <el-table-column prop="staffName" label="下单人员" align="center"></el-table-column>
-                <el-table-column label="商品信息" width="350" align="center">
+                <el-table-column label="商品信息" width="350" align="center" :show-overflow-tooltip="true">
                     <template slot-scope="scope">
                         <div v-for="(item,index) in scope.row.orderGoodsList" :key="index" style="text-align:center">
                             <el-row type="flex" class="row-bg" justify="center" align="middle" :gutter="1">

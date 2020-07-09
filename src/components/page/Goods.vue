@@ -79,11 +79,16 @@
                     :data="goodsList"
                     border
                     stripe
+                    tooltip-effect="light"
                     class="table"
                     ref="multipleTable"
+                    :row-key="getRowKeys"
+                    :expand-row-keys="expandList"
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
-                    @selection-change="handleSelectionChange">
+                    @selection-change="handleSelectionChange"
+                    @cell-mouse-enter="handleMouseEnter"
+                    @cell-mouse-leave="handleMouseLeave">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
 
                 <!-- 批次信息-->
@@ -122,7 +127,8 @@
                 </el-table-column>
 
                 <el-table-column prop="goodsNo" label="商品编号" align="center"></el-table-column>
-                <el-table-column prop="goodsName" label="商品名称" align="center"></el-table-column>
+                <el-table-column prop="goodsName" label="商品名称" align="center"
+                                 :show-overflow-tooltip="true"></el-table-column>
                 <el-table-column label="商品图片" align="center">
                     <template slot-scope="scope">
                         <el-image
@@ -347,6 +353,9 @@
         name: 'goods',
         data() {
             return {
+                getRowKeys(row) {
+                    return row.goodsId;
+                },
                 queryParam: {
                     offset: 1,
                     limit: 10
@@ -358,6 +367,7 @@
                 deleteListParam: {
                     goodsIdList: []
                 },
+                expandList: [],
                 updateGoodsParam: {},
                 updateLotParam: {},
                 addLotParam: {},
@@ -467,6 +477,12 @@
             //多选操作
             handleSelectionChange(val) {
                 this.multipleSelection = val;
+            },
+            handleMouseEnter(row, column, cell, event) {
+                this.expandList.push(row.goodsId);
+            },
+            handleMouseLeave(row, column, cell, event) {
+                this.expandList.splice(0, this.expandList.length);
             },
             //删除所有已选择项
             delAllSelection() {
