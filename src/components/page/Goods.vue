@@ -87,8 +87,7 @@
                     :highlight-current-row="true"
                     header-cell-class-name="table-header"
                     @selection-change="handleSelectionChange"
-                    @cell-mouse-enter="handleMouseEnter"
-                    @cell-mouse-leave="handleMouseLeave">
+                    @row-click="handleRowClick">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
 
                 <!-- 批次信息-->
@@ -478,11 +477,20 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            handleMouseEnter(row, column, cell, event) {
+            handleRowClick(row, column, cell, event) {
+                //1.如果存在一个且key相同，则说明点击同一行，意为关闭
+                if (this.expandList.length === 1 && this.expandList[0] === row.goodsId) {
+                    this.expandList.shift();
+                    return;
+                }
+
+                //2.如果不存在或者key不同，则添加key
                 this.expandList.push(row.goodsId);
-            },
-            handleMouseLeave(row, column, cell, event) {
-                this.expandList.splice(0, this.expandList.length);
+
+                //3.移除第一个key
+                if (this.expandList.length !== 1) {
+                    this.expandList.shift();
+                }
             },
             //删除所有已选择项
             delAllSelection() {
