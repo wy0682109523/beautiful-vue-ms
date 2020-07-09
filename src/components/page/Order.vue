@@ -57,7 +57,7 @@
                                         </div>
                                     </el-image>
                                 </el-col>
-                                <el-col :span="20" :offset="2"><span>{{item.goodsName}} x {{item.goodsQuantity}}</span>
+                                <el-col :span="20" :offset="3"><span>{{item.goodsName}} x {{item.quantity}}</span>
                                 </el-col>
                             </el-row>
                             <hr style="border: none;background-color: #e6e6e6;height: 1px;">
