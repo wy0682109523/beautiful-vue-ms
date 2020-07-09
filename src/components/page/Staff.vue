@@ -74,16 +74,16 @@
                 <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
                 <el-table-column prop="address" label="地址" align="center"></el-table-column>
                 <el-table-column prop="createTime" label="注册时间" align="center" sortable></el-table-column>
-                <el-table-column label="操作" width="180" align="center" fixed="right">
+                <el-table-column label="操作" width="220" align="center" fixed="right">
                     <template slot-scope="scope">
                         <el-button
-                                @click="handleEdit(scope.$index, scope.row)"
-                        >编辑
+                                @click="handleEdit('adminFlag', scope.row)"
+                                :disabled="scope.row.adminFlag===1" type="primary" plain>设为管理员
                         </el-button>
                         <el-button
-                                type="danger"
-                                @click="handleDelete(scope.$index, scope.row)"
-                        >删除
+                                :type="scope.row.employStatus===1?'danger':'success'" plain
+                                @click="handleEdit('employStatus', scope.row)">
+                            {{scope.row.employStatus===1?'设为离职':'设为在职'}}
                         </el-button>
                     </template>
                 </el-table-column>
@@ -100,27 +100,7 @@
                 ></el-pagination>
             </div>
         </div>
-        <!-- 编辑弹出框 -->
-        <el-dialog title="修改" :visible.sync="dialogUpdateVisible" width="30%">
-            <el-form ref="updateParam" :model="updateParam" label-width="70px">
-                <el-form-item label="员工姓名">
-                    <el-input v-model="updateParam.staffName" clearable></el-input>
-                </el-form-item>
-                <el-form-item label="手机号">
-                    <el-input v-model="updateParam.phone" clearable></el-input>
-                </el-form-item>
-                <el-form-item label="员工性别">
-                    <template>
-                        <el-radio v-model="updateParam.sex" label="1">男</el-radio>
-                        <el-radio v-model="updateParam.sex" label="0">女</el-radio>
-                    </template>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogUpdateVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
-            </span>
-        </el-dialog>
+
         <!-- 新增弹出框 -->
         <el-dialog title="新增员工" :visible.sync="dialogAddVisible" width="30%" center>
             <el-form ref="addParam" :model="addParam" label-width="90px" label-position="left" :rules="rules">
@@ -192,11 +172,9 @@
                     offset: 1,
                     limit: 10
                 },
-                updateParam: {},
                 addParam: { sex: '1' },
                 staffList: [],
                 multipleSelection: [],
-                dialogUpdateVisible: false,
                 dialogAddVisible: false,
                 pageTotal: 0,
                 rules: {
@@ -287,15 +265,26 @@
                 });
             },
             // 编辑操作
-            handleEdit(index, row) {
-                this.updateParam = row;
-                this.dialogUpdateVisible = true;
+            handleEdit(type, row) {
+                if (type === 'adminFlag') {
+                    //处理管理员标识
+                    let updateParam = { staffId: row.staffId, adminFlag: row.adminFlag === 1 ? 0 : 1 };
+
+                    this.saveEdit(updateParam);
+
+                } else if (type === 'employStatus') {
+                    //处理员工状态
+                    let updateParam = { staffId: row.staffId, employStatus: row.employStatus === 1 ? 0 : 1 };
+
+                    this.saveEdit(updateParam);
+                }
             },
             // 保存编辑
-            saveEdit() {
-                updateStaff(this.updateParam).then(() => {
+            saveEdit(updateParam) {
+                updateStaff(updateParam).then(() => {
                     this.$message.success(`更新成功`);
-                    this.dialogUpdateVisible = false;
+
+                    this.getStaffData();
                 }).catch(() => {
                     this.$message.error(`更新失败`);
                 });

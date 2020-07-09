@@ -44,13 +44,16 @@
 
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item>
-                            <span @click="popChangePasswordDialog">修改密码</span>
+                            <span @click="popChangePasswordDialog">修改用户密码</span>
+                        </el-dropdown-item>
+                        <el-dropdown-item>
+                            <span @click="popChangeStaffInfoDialog">修改个人信息</span>
                         </el-dropdown-item>
                         <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
 
-                <!-- 新增弹出框 -->
+                <!-- 密码弹出框 -->
                 <el-dialog title="修改密码" :visible.sync="dialogPasswordVisible" width="30%" center>
                     <el-form ref="changePasswordParam" :model="changePasswordParam" label-width="110px"
                              label-position="left" :rules="rules">
@@ -71,6 +74,39 @@
                 <el-button type="primary" @click="changePassword('changePasswordParam')">确 定</el-button>
             </span>
                 </el-dialog>
+
+                <!-- 个人信息弹出框 -->
+                <el-dialog title="修改个人信息" :visible.sync="dialogStaffInfoVisible" width="30%" center>
+                    <el-form ref="staffInfo" :model="staffInfo" label-width="110px" label-position="left"
+                             :rules="rules">
+                        <el-form-item label="员工编号：" prop="staffNo">
+                            <el-input v-model="staffInfo.staffNo" clearable disabled></el-input>
+                        </el-form-item>
+                        <el-form-item label="员工姓名：" prop="staffName">
+                            <el-input v-model="staffInfo.staffName" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="员工性别：">
+                            <el-radio-group v-model="staffInfo.sex">
+                                <el-radio :label="1">男</el-radio>
+                                <el-radio :label="0">女</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="手机号码：" prop="phone">
+                            <el-input v-model="staffInfo.phone" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="邮箱账号：" prop="email">
+                            <el-input v-model="staffInfo.email" clearable></el-input>
+                        </el-form-item>
+                        <el-form-item label="联系地址：" prop="address">
+                            <el-input v-model="staffInfo.address" clearable></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <!-- 操作栏-->
+                    <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelStaffInfoDialog">取 消</el-button>
+                <el-button type="primary" @click="saveStaffInfo('staffInfo')">确 定</el-button>
+            </span>
+                </el-dialog>
             </div>
         </div>
 
@@ -79,7 +115,7 @@
 <script>
     import bus from '../common/bus';
     import { getMessageList } from '../../api/MessageApi';
-    import { changePassword, getStaffDetail } from '../../api/StaffApi';
+    import { changePassword, getStaffDetail, updateStaff } from '../../api/StaffApi';
 
     export default {
         data() {
@@ -95,6 +131,7 @@
                 collapse: false,
                 fullscreen: false,
                 dialogPasswordVisible: false,
+                dialogStaffInfoVisible: false,
                 staffInfo: {},
                 changePasswordParam: {},
                 unreadList: [],
@@ -109,7 +146,16 @@
                     confirmPassword: [
                         { required: true, message: '请确认新密码', trigger: 'blur' },
                         { validator: validatePassword, trigger: ['change', 'blur'] }
-                    ]
+                    ],
+                    email: [{
+                        pattern: /^([a-zA-Z]|[0-9])(\w|-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/,
+                        message: '请输入正确邮箱地址',
+                        trigger: ['change', 'blur']
+                    }], phone: [{
+                        pattern: /^(13[0-9]{9})|(15[0-9][0-9]{8})|(18[0-9][0-9]{8})$/,
+                        message: '请输入正确手机号码',
+                        trigger: ['change', 'blur']
+                    }]
                 }
             };
         },
@@ -159,6 +205,29 @@
                     }
                 }).catch(() => {
                     this.$message.error('修改失败');
+                });
+            },
+            popChangeStaffInfoDialog() {
+                this.dialogStaffInfoVisible = true;
+            },
+            cancelStaffInfoDialog() {
+                this.getStaffData();
+                this.dialogStaffInfoVisible = false;
+            },
+            saveStaffInfo(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        updateStaff(this.staffInfo).then(() => {
+                            this.$message.success('修改成功');
+                            this.dialogStaffInfoVisible = false;
+                            this.getStaffData();
+                        }).catch(() => {
+                            this.$message.error('修改失败');
+                            this.getStaffData();
+                        });
+                    } else {
+                        return false;
+                    }
                 });
             },
             // 侧边栏折叠
