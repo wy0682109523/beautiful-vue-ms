@@ -88,7 +88,7 @@
             </el-row>
 
             <!--确认订单-->
-            <el-dialog title="确认订单" :visible.sync="confirmPayDialogVisible" width="30%" center>
+            <el-dialog title="确认订单" :visible.sync="confirmPayDialogVisible" width="60%" center>
 
                 <el-table
                         :data="multipleSelection"
@@ -147,12 +147,30 @@
                     <el-form-item label="支付方式" prop="paymentMethod">
                         <el-select v-model="createOrderParam.paymentMethod" placeholder="请选择支付方式" clearable>
                             <el-option
-                                    v-for="item in selectOptions"
+                                    v-for="item in paymentMethods"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value">
                             </el-option>
                         </el-select>
+                    </el-form-item>
+                    <el-form-item label="收货信息：" prop="receiverId">
+                        <el-select
+                                v-model="createOrderParam.receiverId"
+                                filterable
+                                remote
+                                placeholder="请输入收货人姓名"
+                                :remote-method="remoteMethod"
+                                :loading="loadingFlag" style="width: 100%">
+                            <el-option
+                                    v-for="item in receiverList"
+                                    :key="item.receiverId"
+                                    :label="item.receiverName+' ['+item.receiverPhone+'] '+item.provinceName+' '+item.cityName+' '+item.countyName+' '+item.address"
+                                    :value="item.receiverId">
+                            </el-option>
+                        </el-select>
+                        <br>
+                        <el-button type="primary" plain @click="popReceiveAddDialog">添加新的收货人</el-button>
                     </el-form-item>
                     <el-form-item label="备注：" prop="remark">
                         <el-input type="textarea" v-model="createOrderParam.remark" clearable></el-input>
@@ -164,6 +182,37 @@
                 <el-button type="primary" @click="saveCreateOrderData('createOrderParam')">提交订单</el-button>
             </span>
             </el-dialog>
+
+            <!--添加收货人-->
+            <el-dialog title="添加收货人" :visible.sync="addReceiverDialogVisible" width="30%" center>
+                <el-form ref="addReceiverParam" :model="addReceiverParam" label-width="100px" label-position="left"
+                         :rules="rules">
+                    <el-form-item label="收货姓名：" prop="receiverName">
+                        <el-input v-model="addReceiverParam.receiverName" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="联系手机：" prop="receiverPhone">
+                        <el-input v-model="addReceiverParam.receiverPhone" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="所在地区：" prop="districtIdList">
+                        <el-cascader :options="districtList"
+                                     v-model="districtIdList"
+                                     :props="districtProps"
+                                     placeholder="请选择省市县"
+                                     @expand-change="handleItemChange"
+                                     filterable
+                                     clearable
+                                     style="width: 100%"></el-cascader>
+                    </el-form-item>
+                    <el-form-item label="详细地址：" prop="address">
+                        <el-input v-model="addReceiverParam.address" clearable></el-input>
+                    </el-form-item>
+                </el-form>
+
+                <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelReceiveAddDialog('addReceiverParam')">取 消</el-button>
+                <el-button type="primary" @click="saveReceiverAddData('addReceiverParam')">确 定</el-button>
+            </span>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -171,6 +220,8 @@
 <script>
     import { deleteCart, deleteCartList, getCartList, updateCart } from '../../api/CartApi';
     import { createOrder } from '../../api/OrderApi';
+    import { getDistrictList, getDistrictListByParentDistrictId } from '../../api/DistrictApi';
+    import { addReceiver, getReceiverList } from '../../api/ReceiverApi';
 
     export default {
         name: 'cart',
@@ -197,12 +248,24 @@
             return {
                 staffId: null,
                 createOrderParam: { discountAmount: 0, cashAmount: 0 },
+                addReceiverParam: {},
                 cartList: [],
                 multipleSelection: [],
                 totalAmount: 0,
                 totalCount: 0,
                 confirmPayDialogVisible: false,
-                selectOptions: [
+                addReceiverDialogVisible: false,
+                districtIdList: [],
+                districtList: [],
+                receiverList: [],
+                loadingFlag: false,
+                districtProps: {
+                    value: 'districtId',
+                    label: 'districtName',
+                    children: 'children',
+                    expandTrigger: 'click'
+                },
+                paymentMethods: [
                     {
                         value: '1',
                         label: '现金'
@@ -225,7 +288,17 @@
                     remark: [
                         { required: false, message: '请输入备注', trigger: 'change' },
                         { min: 0, max: 255, message: '长度在 0 到 255 个数字', trigger: 'blur' }
-                    ]
+                    ],
+                    receiverName: [{ required: true, message: '请输入收货人姓名', trigger: 'blur' }],
+                    receiverPhone: [{ required: true, message: '请输入收货人手机', trigger: ['change', 'blur'] },
+                        {
+                            pattern: /^1[345789][0-9]{9}$/,
+                            message: '请输入11位有效手机号码',
+                            trigger: ['change', 'blur']
+                        }],
+                    address: [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
+                    districtIdList: [{ required: true, message: '请输入省市县', trigger: 'blur' }],
+                    receiverId: [{ required: true, message: '请输入收货人姓名进行选择收货地址', trigger: 'blur' }]
                 }
             };
         },
@@ -405,6 +478,7 @@
 
                 this.createOrderParam['orderGoodsList'] = orderGoodsList;
 
+                console.log(this.createOrderParam);
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         createOrder(this.createOrderParam).then((response) => {
@@ -439,6 +513,121 @@
                         return false;
                     }
                 });
+            },
+            popReceiveAddDialog() {
+                this.addReceiverDialogVisible = true;
+
+                this.addReceiverParam = {};
+
+                let query = {
+                    districtLevel: '1'
+                };
+
+                getDistrictList(query).then((response) => {
+                    console.log(response);
+                    this.districtList = response.result.districtList;
+
+                    this.districtList.map((item, index, array) => {
+                        // 因为数组和对象更新后不会更新视图，这里必须用$set方法
+                        this.$set(array[index], 'children', []);
+                    });
+                }).catch(() => {
+                    this.$message.error('查询失败');
+                });
+            },
+            cancelReceiveAddDialog() {
+                this.addReceiverDialogVisible = false;
+            },
+            saveReceiverAddData() {
+                if (this.districtIdList.length > 0) {
+                    this.addReceiverParam['provinceId'] = this.districtIdList[0];
+                }
+
+                if (this.districtIdList.length > 1) {
+                    this.addReceiverParam['cityId'] = this.districtIdList[1];
+                }
+
+                if (this.districtIdList.length > 2) {
+                    this.addReceiverParam['countyId'] = this.districtIdList[2];
+                }
+
+                addReceiver(this.addReceiverParam).then(() => {
+                    this.$message.success('添加成功');
+
+                    this.addReceiverDialogVisible = false;
+
+                }).catch(() => {
+                    this.$message.error('添加失败');
+                });
+            },
+            handleItemChange(districtInfo) {
+                console.log(districtInfo);
+                if (districtInfo.length === 1) {
+                    //如果点击一级菜单
+                    let parentDistrictId = districtInfo[0];
+
+                    this.districtList.map((item, index) => {
+
+                        if (item.districtId === parentDistrictId && item.children.length === 0) {
+                            //当上一级分类的的child为空时才请求数据
+                            let params = { parentDistrictId: parentDistrictId };
+
+                            getDistrictListByParentDistrictId(params).then(response => {
+
+                                this.$set(this.districtList[index], 'children', response.result.districtList);
+
+                                item.children.map((innerItem, innerIndex) => {
+                                    //二级分类下必须要设置一个空的child数组，不然点击@active-item-change没反应
+                                    this.$set(item.children[innerIndex], 'children', []);
+                                });
+                            });
+                        }
+                    });
+
+                } else if (districtInfo.length === 2) {
+                    //如果点击二级菜单
+                    let parentDistrictId = districtInfo[1];
+
+                    this.districtList.map((item) => {
+
+                        item.children.map((innerItem, innerIndex) => {
+
+                            if (innerItem.districtId === parentDistrictId && innerItem.children.length === 0) {
+                                //当上一级分类的的child为空时才请求数据
+                                let params = { parentDistrictId: parentDistrictId };
+
+                                getDistrictListByParentDistrictId(params).then(response => {
+
+                                    this.$set(item.children[innerIndex], 'children', response.result.districtList);
+                                });
+                            }
+                        });
+                    });
+
+                } else {
+                    console.log('暂时不支持此级别区域查询');
+                }
+            },
+            remoteMethod(keyword) {
+                if (keyword !== '') {
+                    this.loadingFlag = true;
+
+                    let query = {
+                        receiverName: keyword,
+                        receiverPhone: null
+                    };
+
+                    getReceiverList(query).then((response) => {
+                        this.receiverList = response.result.receiverList;
+
+                        this.loadingFlag = false;
+                    }).catch(() => {
+                        this.receiverList = [];
+                        this.loadingFlag = false;
+                    });
+                } else {
+                    this.receiverList = [];
+                }
             }
         }
     };

@@ -42,9 +42,9 @@
                     @selection-change="handleSelectionChange"
                     @cell-dblclick="copy">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="orderNo" label="订单编号" align="center" :show-overflow-tooltip="true"></el-table-column>
+                <el-table-column prop="orderNo" label="订单编号" align="center" width="180"></el-table-column>
                 <el-table-column prop="staffName" label="下单人员" align="center"></el-table-column>
-                <el-table-column label="商品信息" width="350" align="center" :show-overflow-tooltip="true">
+                <el-table-column label="商品信息" width="400" align="center">
                     <template slot-scope="scope">
                         <div v-for="(item,index) in scope.row.orderGoodsList" :key="index" style="text-align:center">
                             <el-row type="flex" class="row-bg" justify="center" align="middle" :gutter="1">
@@ -65,6 +65,17 @@
                         </div>
                     </template>
                 </el-table-column>
+                <el-table-column label="收货信息" width="400" align="center">
+                    <template slot-scope="scope">
+                        <el-row>
+                            <el-col>收货姓名：{{scope.row.receiverInfo.receiverName}}</el-col>
+                            <el-col>联系电话：{{scope.row.receiverInfo.receiverPhone}}</el-col>
+                            <el-col>收货地址：{{scope.row.receiverInfo.provinceName+' '+scope.row.receiverInfo.cityName+
+                                ''+scope.row.receiverInfo.countyName+' '+scope.row.receiverInfo.address}}
+                            </el-col>
+                        </el-row>
+                    </template>
+                </el-table-column>
                 <el-table-column label="订单金额" align="center">
                     <template slot-scope="scope">￥ {{scope.row.orderAmount}}</template>
                 </el-table-column>
@@ -82,7 +93,8 @@
                                  :formatter="formatPaymentMethod"></el-table-column>
                 <el-table-column prop="orderStatus" label="订单状态" align="center"
                                  :formatter="formatOrderStatus"></el-table-column>
-                <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                <el-table-column prop="remark" label="备注" align="center"
+                                 :show-overflow-tooltip="true"></el-table-column>
                 <el-table-column prop="orderTime" label="下单时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center" fixed="right">
                     <template slot-scope="scope">
@@ -168,7 +180,6 @@
                 getOrderList(this.query).then(response => {
                     this.orderList = response.result.orderList;
                     this.totalSize = response.result.totalSize;
-                    console.log(response);
                 }).catch(() => {
                     this.$message.error('查询失败');
                 });
