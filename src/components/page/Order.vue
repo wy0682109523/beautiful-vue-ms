@@ -65,12 +65,12 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="收货信息" width="400" align="center">
+                <el-table-column label="收货信息" width="400" align="left">
                     <template slot-scope="scope">
                         <el-row>
-                            <el-col>收货姓名：{{scope.row.receiverInfo.receiverName}}</el-col>
-                            <el-col>联系电话：{{scope.row.receiverInfo.receiverPhone}}</el-col>
-                            <el-col>收货地址：{{scope.row.receiverInfo.provinceName+' '+scope.row.receiverInfo.cityName+
+                            <el-col><strong>收货姓名：</strong>{{scope.row.receiverInfo.receiverName}}</el-col>
+                            <el-col><strong>联系电话：</strong>{{scope.row.receiverInfo.receiverPhone}}</el-col>
+                            <el-col><strong>收货地址：</strong>{{scope.row.receiverInfo.provinceName+' '+scope.row.receiverInfo.cityName+
                                 ''+scope.row.receiverInfo.countyName+' '+scope.row.receiverInfo.address}}
                             </el-col>
                         </el-row>
