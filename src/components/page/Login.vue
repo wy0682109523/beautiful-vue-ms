@@ -28,7 +28,7 @@
 </template>
 
 <script>
-    import { login } from '../../api/StaffApi';
+    import { login } from '../../api/SysApi';
 
     export default {
         data: function() {
@@ -49,9 +49,9 @@
                     if (valid) {
                         login(this.param).then((response) => {
                             if (response.status === 200) {
-
                                 localStorage.setItem('ms_username', this.param.username);
                                 localStorage.setItem('ms_staffId', response.result.staffId);
+                                localStorage.setItem('ms_token', response.result.token.accessToken);
 
                                 this.$message.success('登录成功');
                                 this.$router.push('/');

@@ -124,7 +124,8 @@
 
 <script>
     import Schart from 'vue-schart';
-    import { getLastLoginRecord, getStaffDetail } from '../../api/StaffApi';
+    import { getStaffDetail } from '../../api/StaffApi';
+    import { getLastLoginRecord } from '../../api/SysApi';
 
     export default {
         name: 'dashboard',

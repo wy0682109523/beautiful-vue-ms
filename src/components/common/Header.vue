@@ -211,6 +211,9 @@
             handleCommand(command) {
                 if (command === 'loginout') {
                     localStorage.removeItem('ms_username');
+                    localStorage.removeItem('ms_token');
+                    localStorage.removeItem('ms_staffId');
+
                     this.$router.push('/login');
                 }
             },

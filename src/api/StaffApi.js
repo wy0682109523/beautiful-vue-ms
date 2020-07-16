@@ -54,28 +54,10 @@ export const deleteStaffList = query => {
     });
 };
 
-//员工登录
-export const login = query => {
-    return request({
-        url: 'v1/login/signIn',
-        method: 'post',
-        data: query
-    });
-};
-
 //员工密码修改
 export const changePassword = query => {
     return request({
         url: 'v1/staff/changePassword',
-        method: 'post',
-        data: query
-    });
-};
-
-//获取员工最新登录记录
-export const getLastLoginRecord = query => {
-    return request({
-        url: 'v1/login/getLastLoginRecord',
         method: 'post',
         data: query
     });

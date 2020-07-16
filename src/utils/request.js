@@ -8,6 +8,13 @@ const service = axios.create({
 //请求拦截器
 service.interceptors.request.use(
     config => {
+        //配置全局token
+        let token = localStorage.getItem('ms_token');
+
+        if (token) {
+            config.headers.Authorization = 'Bearer ' + token;
+        }
+
         return config;
     },
     error => {
