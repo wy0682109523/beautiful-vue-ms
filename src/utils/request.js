@@ -1,4 +1,5 @@
 import axios from 'axios';
+import router from '../router';
 
 //以自定义配置创建实例
 const service = axios.create({
@@ -33,8 +34,16 @@ service.interceptors.response.use(
         }
     },
     error => {
-        console.log(error);
-        return Promise.reject();
+        console.log(error.response);
+
+        if (error.response.status === 401) {
+            console.log('token过期');
+            router.replace({
+                path: '/login'
+            });
+        } else {
+            return Promise.reject(error.response.data);
+        }
     }
 );
 
